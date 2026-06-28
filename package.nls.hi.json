@@ -4,5 +4,6 @@
   "configuration.pngOptimization.lossless": "PNG डेटा को दोबारा संपीड़ित करता है और गैर-दृश्य मेटाडेटा हटाता है। पिक्सेल आउटपुट सुरक्षित रहता है; अगर अनुकूलन से आकार कम नहीं होता, तो मूल फ़ाइल रखी जाती है।",
   "configuration.pngOptimization.none": "PNG डेटा को VS Code से मिले रूप में ही सहेजता है।",
   "configuration.title": "otak-paste",
-  "extension.description": "Markdown छवियों को assets में पेस्ट करें और छोटे स्क्रीनशॉट के लिए स्वचालित दोषरहित PNG अनुकूलन करें।"
+  "extension.description": "Markdown छवियों को assets में पेस्ट करें और छोटे स्क्रीनशॉट के लिए स्वचालित दोषरहित PNG अनुकूलन करें।",
+  "paste.title": "छवि को assets में पेस्ट करें"
 }

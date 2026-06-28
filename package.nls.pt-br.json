@@ -4,5 +4,6 @@
   "configuration.pngOptimization.lossless": "Recomprime os dados PNG e remove metadados não visuais. A saída de pixels é preservada, e o arquivo original é mantido quando a otimização não reduz o tamanho.",
   "configuration.pngOptimization.none": "Salva os dados PNG exatamente como recebidos do VS Code.",
   "configuration.title": "otak-paste",
-  "extension.description": "Cole imagens Markdown em assets com otimização PNG sem perdas automática para capturas de tela menores."
+  "extension.description": "Cole imagens Markdown em assets com otimização PNG sem perdas automática para capturas de tela menores.",
+  "paste.title": "Colar imagem em assets"
 }

@@ -4,5 +4,6 @@
   "configuration.pngOptimization.lossless": "PNG 데이터를 다시 압축하고 표시와 관련 없는 메타데이터를 제거합니다. 픽셀 출력은 유지되며, 최적화해도 더 작아지지 않으면 원본 파일을 저장합니다.",
   "configuration.pngOptimization.none": "VS Code에서 받은 PNG 데이터를 그대로 저장합니다.",
   "configuration.title": "otak-paste",
-  "extension.description": "Markdown에 붙여 넣은 이미지를 자동 무손실 PNG 최적화로 더 작은 스크린샷으로 assets에 저장합니다."
+  "extension.description": "Markdown에 붙여 넣은 이미지를 자동 무손실 PNG 최적화로 더 작은 스크린샷으로 assets에 저장합니다.",
+  "paste.title": "이미지를 assets에 붙여넣기"
 }

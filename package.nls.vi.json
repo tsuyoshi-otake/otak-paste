@@ -4,5 +4,6 @@
   "configuration.pngOptimization.lossless": "Nén lại dữ liệu PNG và xóa siêu dữ liệu không ảnh hưởng đến hiển thị. Kết quả pixel được giữ nguyên, và tệp gốc được giữ lại nếu tối ưu hóa không nhỏ hơn.",
   "configuration.pngOptimization.none": "Lưu dữ liệu PNG đúng như nhận từ VS Code.",
   "configuration.title": "otak-paste",
-  "extension.description": "Dán ảnh Markdown vào assets với tối ưu PNG không mất dữ liệu tự động để ảnh chụp màn hình nhỏ hơn."
+  "extension.description": "Dán ảnh Markdown vào assets với tối ưu PNG không mất dữ liệu tự động để ảnh chụp màn hình nhỏ hơn.",
+  "paste.title": "Dán hình ảnh vào assets"
 }

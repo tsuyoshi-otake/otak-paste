@@ -13,8 +13,10 @@
     "url": "https://github.com/tsuyoshi-otake/otak-paste/issues"
   },
   "homepage": "https://github.com/tsuyoshi-otake/otak-paste#readme",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "files": [
+    "out/clipboardImageReader.js",
+    "out/clipboardImageReader.js.map",
     "out/configuration.js",
     "out/configuration.js.map",
     "out/constants.js",
@@ -23,6 +25,10 @@
     "out/extension.js.map",
     "out/pathing.js",
     "out/pathing.js.map",
+    "out/pastedPngAsset.js",
+    "out/pastedPngAsset.js.map",
+    "out/pasteImageCommand.js",
+    "out/pasteImageCommand.js.map",
     "out/pasteImageProvider.js",
     "out/pasteImageProvider.js.map",
     "out/pngOptimizationMode.js",
@@ -45,6 +51,7 @@
     "Other"
   ],
   "activationEvents": [
+    "onCommand:otakPaste.pasteImage",
     "onLanguage:markdown"
   ],
   "main": "./out/extension.js",
@@ -56,6 +63,20 @@
     "virtualWorkspaces": false
   },
   "contributes": {
+    "configurationDefaults": {
+      "markdown.editor.filePaste.enabled": "never",
+      "[markdown]": {
+        "editor.pasteAs.preferences": [
+          "markdown.image.otakPaste"
+        ]
+      }
+    },
+    "commands": [
+      {
+        "command": "otakPaste.pasteImage",
+        "title": "%paste.title%"
+      }
+    ],
     "configuration": {
       "title": "%configuration.title%",
       "properties": {
@@ -74,7 +95,15 @@
           "markdownDescription": "%configuration.pngOptimization.description%"
         }
       }
-    }
+    },
+    "keybindings": [
+      {
+        "command": "otakPaste.pasteImage",
+        "key": "ctrl+v",
+        "mac": "cmd+v",
+        "when": "editorTextFocus && editorLangId == markdown && !editorReadonly"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -84,6 +113,7 @@
     "watch": "tsc -watch -p ./",
     "lint": "eslint src",
     "test": "npm run compile && node scripts/run-unit-tests.mjs",
+    "test:e2e": "npm run compile && node scripts/run-e2e-tests.mjs",
     "package": "npm run compile && vsce package"
   },
   "devDependencies": {
@@ -91,6 +121,7 @@
     "@types/vscode": "^1.125.0",
     "@typescript-eslint/eslint-plugin": "^8.22.0",
     "@typescript-eslint/parser": "^8.22.0",
+    "@vscode/test-electron": "^3.0.0",
     "@vscode/vsce": "^3.9.2",
     "eslint": "^9.19.0",
     "typescript": "^5.7.3"

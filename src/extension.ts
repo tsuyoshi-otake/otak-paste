@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { I18nManager } from './i18n/I18nManager';
+import { pasteImageFromClipboard } from './pasteImageCommand';
 import { getOtakPasteEditKind, OtakPasteProvider } from './pasteImageProvider';
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -10,6 +11,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
     const provider = new OtakPasteProvider(i18n);
     context.subscriptions.push(
+        vscode.commands.registerCommand('otakPaste.pasteImage', () => pasteImageFromClipboard(i18n)),
         vscode.languages.registerDocumentPasteEditProvider(
             { language: 'markdown' },
             provider,

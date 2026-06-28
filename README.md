@@ -33,7 +33,7 @@ Teams writing documentation in Markdown handle the same chore on every screensho
 3. Copy a PNG, or take a screenshot.
 4. Paste with <kbd>Ctrl</kbd>+<kbd>V</kbd> (<kbd>Cmd</kbd>+<kbd>V</kbd> on macOS).
 
-otak-paste optimizes the PNG when it can save space, writes the image next to your file, and inserts the link:
+On Windows, otak-paste reads the image directly from the clipboard on <kbd>Ctrl</kbd>+<kbd>V</kbd>, optimizes the PNG when it can save space, writes the image next to your file, and inserts the link:
 
 ```markdown
 ![image](assets/4f8c9a01d2b3e4f5.png)
@@ -43,11 +43,12 @@ The `image` alt text is **pre-selected**, so you can type a real description rig
 
 ## Capabilities
 
-- **One-keystroke flow**: runs from the normal editor paste action. No commands, no dialogs.
+- **One-keystroke flow**: `Ctrl+V` / `Cmd+V` in a Markdown editor runs otak-paste first for clipboard PNGs, then falls back to VS Code's normal paste for text and other clipboard content.
 - **Local-first assets**: images are written to an `assets/` folder beside the current file, never scattered across the workspace.
 - **Smaller Markdown repositories**: pasted screenshots are losslessly recompressed before saving, which can reduce asset size and future Git diffs without changing the visible image.
 - **Unique filenames**: each file receives a random 16-character hex name such as `4f8c9a01d2b3e4f5.png`.
 - **Configurable optimization**: keep the default `lossless` mode, or choose `none` when you need byte-for-byte clipboard output.
+- **Undo-friendly cleanup**: undoing the paste removes both the Markdown image link and the PNG file created for that paste.
 - **Editable alt text**: the alt text is selected on paste, ready to describe.
 - **Non-intrusive**: no success pop-ups; it stays out of your workflow.
 - **Localized interface**: UI messages follow your VS Code display language.
@@ -64,6 +65,15 @@ When a PNG is on your clipboard and the active editor is a saved Markdown file, 
 6. Inserts the Markdown image link at the cursor.
 
 Anything outside those conditions is handed back to VS Code's default paste behavior. otak-paste only handles the specific case it was built for.
+
+## Undo Behavior
+
+When you undo a paste with <kbd>Ctrl</kbd>+<kbd>Z</kbd> (<kbd>Cmd</kbd>+<kbd>Z</kbd> on macOS), VS Code removes both parts of the same paste operation:
+
+- the Markdown image link inserted in the editor
+- the PNG file that otak-paste created for that paste
+
+The `assets/` folder itself may remain if it was created for the first paste. otak-paste does not scan for or delete unrelated orphaned images, so files from older paste operations or manually edited links are left alone.
 
 ## Settings
 
@@ -122,7 +132,7 @@ ext install odangoo.otak-paste
 ```bash
 npm install
 npm run package
-code --install-extension otak-paste-0.2.0.vsix
+code --install-extension otak-paste-0.3.0.vsix
 ```
 
 Reload VS Code afterwards if the Markdown editor was already open.

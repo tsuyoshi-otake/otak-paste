@@ -4,5 +4,6 @@
   "configuration.pngOptimization.lossless": "يعيد ضغط بيانات PNG ويزيل البيانات الوصفية غير المرئية. يتم الحفاظ على ناتج البكسل، ويتم الاحتفاظ بالملف الأصلي إذا لم يقلل التحسين الحجم.",
   "configuration.pngOptimization.none": "يحفظ بيانات PNG كما تم تلقيها من VS Code تمامًا.",
   "configuration.title": "otak-paste",
-  "extension.description": "الصق صور Markdown في assets مع تحسين PNG تلقائي بلا فقدان لتقليل حجم لقطات الشاشة."
+  "extension.description": "الصق صور Markdown في assets مع تحسين PNG تلقائي بلا فقدان لتقليل حجم لقطات الشاشة.",
+  "paste.title": "لصق الصورة في assets"
 }

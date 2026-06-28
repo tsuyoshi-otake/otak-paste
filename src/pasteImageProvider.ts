@@ -1,14 +1,10 @@
 import * as vscode from 'vscode';
-import { getPngOptimizationMode } from './configuration';
-import { ASSET_DIRECTORY_NAME } from './constants';
 import { I18nManager } from './i18n/I18nManager';
+import { buildMarkdownImageSnippet, UniqueFileNameError } from './pathing';
 import {
-    buildAssetRelativePath,
-    buildMarkdownImageSnippet,
-    pickUniquePngFileName,
-    UniqueFileNameError
-} from './pathing';
-import { optimizePngBytes } from './pngOptimizer';
+    ensurePastedPngDirectory,
+    preparePastedPngAsset
+} from './pastedPngAsset';
 
 const PNG_MIME_TYPE = 'image/png';
 
@@ -83,26 +79,18 @@ export class OtakPasteProvider implements vscode.DocumentPasteEditProvider<OtakP
         }
 
         try {
-            const assetDirectory = vscode.Uri.joinPath(pasteEdit.documentUri, '..', ASSET_DIRECTORY_NAME);
-            const fileName = await pickUniquePngFileName(fileName => this.fileExists(vscode.Uri.joinPath(assetDirectory, fileName)));
+            const asset = await preparePastedPngAsset(pasteEdit.documentUri, pasteEdit.pngBytes);
 
             if (token.isCancellationRequested) {
                 return pasteEdit;
             }
 
-            const pngBytes = await optimizePngBytes(pasteEdit.pngBytes, getPngOptimizationMode());
-            if (token.isCancellationRequested) {
-                return pasteEdit;
-            }
+            await ensurePastedPngDirectory(asset);
 
-            await vscode.workspace.fs.createDirectory(assetDirectory);
-
-            const imageUri = vscode.Uri.joinPath(assetDirectory, fileName);
-            const relativePath = buildAssetRelativePath(fileName);
             const additionalEdit = new vscode.WorkspaceEdit();
-            additionalEdit.createFile(imageUri, { contents: pngBytes });
+            additionalEdit.createFile(asset.imageUri, { contents: asset.pngBytes });
 
-            pasteEdit.insertText = new vscode.SnippetString(buildMarkdownImageSnippet(relativePath));
+            pasteEdit.insertText = new vscode.SnippetString(buildMarkdownImageSnippet(asset.relativePath));
             pasteEdit.additionalEdit = additionalEdit;
             return pasteEdit;
         } catch (error) {
@@ -114,17 +102,6 @@ export class OtakPasteProvider implements vscode.DocumentPasteEditProvider<OtakP
         }
     }
 
-    private async fileExists(uri: vscode.Uri): Promise<boolean> {
-        try {
-            await vscode.workspace.fs.stat(uri);
-            return true;
-        } catch (error) {
-            if (isFileNotFound(error)) {
-                return false;
-            }
-            throw error;
-        }
-    }
 }
 
 async function readPngBytes(item: vscode.DataTransferItem): Promise<Uint8Array | undefined> {
@@ -147,13 +124,4 @@ async function readPngBytes(item: vscode.DataTransferItem): Promise<Uint8Array |
     }
 
     return undefined;
-}
-
-function isFileNotFound(error: unknown): boolean {
-    if (typeof error === 'object' && error !== null && 'code' in error) {
-        const code = String((error as { code?: unknown }).code);
-        return code === 'FileNotFound' || code === 'EntryNotFound';
-    }
-
-    return String(error).includes('FileNotFound') || String(error).includes('EntryNotFound');
 }

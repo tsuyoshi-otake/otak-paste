@@ -4,5 +4,6 @@
   "configuration.pngOptimization.lossless": "PNGデータを再圧縮し、表示に影響しないメタデータを削除します。ピクセル出力は維持し、最適化後に小さくならない場合は元のファイルを保存します。",
   "configuration.pngOptimization.none": "VS Codeから受け取ったPNGデータをそのまま保存します。",
   "configuration.title": "otak-paste",
-  "extension.description": "Markdownに貼り付けた画像を自動でロスレスPNG最適化し、軽量なスクリーンショットとしてassetsに保存します。"
+  "extension.description": "Markdownに貼り付けた画像を自動でロスレスPNG最適化し、軽量なスクリーンショットとしてassetsに保存します。",
+  "paste.title": "画像をassetsに貼り付け"
 }

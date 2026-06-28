@@ -1,5 +1,22 @@
 # Change Log
 
+## [0.3.0] - 2026-06-28
+
+### Changed
+- Added a dedicated `otakPaste.pasteImage` command bound to `Ctrl+V` / `Cmd+V` in Markdown editors.
+- Reads PNG image data directly from the Windows clipboard before falling back to VS Code's normal paste command for non-image clipboard contents.
+- Makes pasted PNG file creation part of the same undo operation as the Markdown image link insertion.
+
+## [0.2.2] - 2026-06-28
+
+### Changed
+- Disabled VS Code's built-in Markdown file paste action by default so `Paste image to assets` can run without a chooser when user settings do not override it.
+
+## [0.2.1] - 2026-06-28
+
+### Changed
+- Defaulted Markdown image paste preferences to `Paste image to assets` when the user has not configured a paste preference.
+
 ## [0.2.0] - 2026-06-28
 
 ### Added

@@ -4,5 +4,6 @@
   "configuration.pngOptimization.lossless": "重新壓縮 PNG 資料並移除不影響顯示的中繼資料。維持像素輸出不變；若最佳化後未變小，則儲存原始檔案。",
   "configuration.pngOptimization.none": "依照從 VS Code 收到的內容原樣儲存 PNG 資料。",
   "configuration.title": "otak-paste",
-  "extension.description": "將貼到 Markdown 的圖片自動進行無損 PNG 最佳化，並以更小的截圖儲存到 assets。"
+  "extension.description": "將貼到 Markdown 的圖片自動進行無損 PNG 最佳化，並以更小的截圖儲存到 assets。",
+  "paste.title": "將圖片貼到 assets"
 }

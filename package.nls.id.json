@@ -4,5 +4,6 @@
   "configuration.pngOptimization.lossless": "Mengompresi ulang data PNG dan menghapus metadata non-visual. Output piksel dipertahankan, dan file asli dipakai jika optimasi tidak lebih kecil.",
   "configuration.pngOptimization.none": "Menyimpan data PNG persis seperti diterima dari VS Code.",
   "configuration.title": "otak-paste",
-  "extension.description": "Tempel gambar Markdown ke assets dengan optimasi PNG lossless otomatis agar tangkapan layar lebih kecil."
+  "extension.description": "Tempel gambar Markdown ke assets dengan optimasi PNG lossless otomatis agar tangkapan layar lebih kecil.",
+  "paste.title": "Tempel gambar ke assets"
 }
