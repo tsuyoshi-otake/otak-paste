@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.1.2] - 2026-06-28
+
+### Changed
+- Refreshed the Marketplace README content and switched to the new otak-paste icon asset set.
+
+## [0.1.1] - 2026-06-28
+
+### Changed
+- Updated the extension icon to align with the otak series.
+
 ## [0.1.0] - 2026-06-28
 
 ### Added

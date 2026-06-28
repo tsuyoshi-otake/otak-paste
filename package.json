@@ -4,7 +4,7 @@
   "description": "%extension.description%",
   "publisher": "odangoo",
   "license": "MIT",
-  "icon": "images/icon.png",
+  "icon": "images/otak-paste-icon-128.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/tsuyoshi-otake/otak-paste"
@@ -13,7 +13,7 @@
     "url": "https://github.com/tsuyoshi-otake/otak-paste/issues"
   },
   "homepage": "https://github.com/tsuyoshi-otake/otak-paste#readme",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "files": [
     "out/constants.js",
     "out/constants.js.map",
