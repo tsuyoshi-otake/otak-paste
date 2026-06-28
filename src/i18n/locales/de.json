@@ -1,0 +1,10 @@
+{
+  "capabilities.untrustedWorkspaces": "Erstellt PNG-Dateien im assets-Ordner der aktuellen Markdown-Datei, wenn Sie Bilder einfügen.",
+  "error.createPasteEdit": "Das eingefügte Bild konnte nicht vorbereitet werden.",
+  "error.nameCollision": "In assets konnte kein unbenutzter Bilddateiname gefunden werden. Fügen Sie das Bild erneut ein.",
+  "error.readPngData": "PNG-Daten konnten nicht aus der Zwischenablage gelesen werden.",
+  "extension.description": "Speichert eingefügte Markdown-Bilder mit zufälligen PNG-Dateinamen in einem lokalen assets-Ordner.",
+  "paste.title": "Bild in assets einfügen",
+  "warning.nonFileMarkdown": "otak-paste kann Bilder nur für lokale Markdown-Dateien speichern.",
+  "warning.unsavedMarkdown": "Speichern Sie diese Markdown-Datei, bevor Sie ein Bild einfügen."
+}

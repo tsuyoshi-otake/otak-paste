@@ -1,0 +1,4 @@
+{
+  "capabilities.untrustedWorkspaces": "貼上圖片時，會在目前 Markdown 檔案的 assets 資料夾下建立 PNG 檔案。",
+  "extension.description": "將貼上的 Markdown 圖片以隨機 PNG 檔名儲存到本機 assets 資料夾。"
+}

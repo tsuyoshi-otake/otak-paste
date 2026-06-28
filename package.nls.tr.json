@@ -1,0 +1,4 @@
+{
+  "capabilities.untrustedWorkspaces": "Görüntü yapıştırdığınızda geçerli Markdown dosyasının assets klasöründe PNG dosyaları oluşturur.",
+  "extension.description": "Yapıştırılan Markdown görüntülerini rastgele PNG dosya adlarıyla yerel assets klasörüne kaydeder."
+}

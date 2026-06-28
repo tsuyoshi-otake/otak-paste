@@ -1,0 +1,10 @@
+{
+  "capabilities.untrustedWorkspaces": "Tạo tệp PNG trong thư mục assets của tệp Markdown hiện tại khi bạn dán hình ảnh.",
+  "error.createPasteEdit": "Không thể chuẩn bị hình ảnh đã dán.",
+  "error.nameCollision": "Không tìm được tên tệp hình ảnh chưa dùng trong assets. Hãy dán lại.",
+  "error.readPngData": "Không thể đọc dữ liệu PNG từ bảng tạm.",
+  "extension.description": "Lưu hình ảnh Markdown đã dán vào thư mục assets cục bộ với tên tệp PNG ngẫu nhiên.",
+  "paste.title": "Dán hình ảnh vào assets",
+  "warning.nonFileMarkdown": "otak-paste chỉ có thể lưu hình ảnh cho tệp Markdown cục bộ.",
+  "warning.unsavedMarkdown": "Hãy lưu tệp Markdown này trước khi dán hình ảnh."
+}

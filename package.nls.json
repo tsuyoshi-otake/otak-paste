@@ -1,0 +1,4 @@
+{
+  "capabilities.untrustedWorkspaces": "Creates PNG files under the current Markdown file's assets folder when you paste images.",
+  "extension.description": "Save pasted Markdown images to a local assets folder with random PNG file names."
+}

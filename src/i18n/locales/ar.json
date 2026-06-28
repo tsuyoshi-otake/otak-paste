@@ -1,0 +1,10 @@
+{
+  "capabilities.untrustedWorkspaces": "ينشئ ملفات PNG داخل مجلد assets لملف Markdown الحالي عند لصق الصور.",
+  "error.createPasteEdit": "تعذر تجهيز الصورة الملصقة.",
+  "error.nameCollision": "تعذر العثور على اسم ملف صورة غير مستخدم في assets. حاول اللصق مرة أخرى.",
+  "error.readPngData": "تعذرت قراءة بيانات PNG من الحافظة.",
+  "extension.description": "يحفظ صور Markdown الملصقة في مجلد assets محلي بأسماء ملفات PNG عشوائية.",
+  "paste.title": "لصق الصورة في assets",
+  "warning.nonFileMarkdown": "يمكن لـ otak-paste حفظ الصور لملفات Markdown المحلية فقط.",
+  "warning.unsavedMarkdown": "احفظ ملف Markdown هذا قبل لصق صورة."
+}

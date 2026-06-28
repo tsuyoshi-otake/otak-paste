@@ -1,0 +1,4 @@
+{
+  "capabilities.untrustedWorkspaces": "画像を貼り付けたとき、現在のMarkdownファイルのassetsフォルダーにPNGファイルを作成します。",
+  "extension.description": "貼り付けたMarkdown画像を、ランダムなPNGファイル名でローカルassetsフォルダーに保存します。"
+}

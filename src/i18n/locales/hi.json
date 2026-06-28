@@ -1,0 +1,10 @@
+{
+  "capabilities.untrustedWorkspaces": "जब आप छवियां पेस्ट करते हैं, तो वर्तमान Markdown फ़ाइल के assets फ़ोल्डर में PNG फ़ाइलें बनाता है।",
+  "error.createPasteEdit": "पेस्ट की गई छवि तैयार नहीं की जा सकी।",
+  "error.nameCollision": "assets में अप्रयुक्त छवि फ़ाइल नाम नहीं मिल सका। फिर से पेस्ट करें।",
+  "error.readPngData": "क्लिपबोर्ड से PNG डेटा नहीं पढ़ा जा सका।",
+  "extension.description": "पेस्ट की गई Markdown छवियों को यादृच्छिक PNG फ़ाइल नामों के साथ स्थानीय assets फ़ोल्डर में सहेजें।",
+  "paste.title": "छवि को assets में पेस्ट करें",
+  "warning.nonFileMarkdown": "otak-paste केवल स्थानीय Markdown फ़ाइलों के लिए छवियां सहेज सकता है।",
+  "warning.unsavedMarkdown": "छवि पेस्ट करने से पहले इस Markdown फ़ाइल को सहेजें।"
+}

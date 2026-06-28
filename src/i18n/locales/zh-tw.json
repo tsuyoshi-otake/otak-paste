@@ -1,0 +1,10 @@
+{
+  "capabilities.untrustedWorkspaces": "貼上圖片時，會在目前 Markdown 檔案的 assets 資料夾下建立 PNG 檔案。",
+  "error.createPasteEdit": "無法準備貼上的圖片。",
+  "error.nameCollision": "無法在 assets 中找到未使用的圖片檔名。請再貼上一次。",
+  "error.readPngData": "無法從剪貼簿讀取 PNG 資料。",
+  "extension.description": "將貼上的 Markdown 圖片以隨機 PNG 檔名儲存到本機 assets 資料夾。",
+  "paste.title": "將圖片貼到 assets",
+  "warning.nonFileMarkdown": "otak-paste 只能為本機 Markdown 檔案儲存圖片。",
+  "warning.unsavedMarkdown": "貼上圖片前，請先儲存此 Markdown 檔案。"
+}

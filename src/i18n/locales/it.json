@@ -1,0 +1,10 @@
+{
+  "capabilities.untrustedWorkspaces": "Crea file PNG nella cartella assets del file Markdown corrente quando incolli immagini.",
+  "error.createPasteEdit": "Impossibile preparare l'immagine incollata.",
+  "error.nameCollision": "Impossibile trovare un nome file immagine non usato in assets. Prova a incollare di nuovo.",
+  "error.readPngData": "Impossibile leggere i dati PNG dagli appunti.",
+  "extension.description": "Salva le immagini Markdown incollate in una cartella assets locale con nomi file PNG casuali.",
+  "paste.title": "Incolla immagine in assets",
+  "warning.nonFileMarkdown": "otak-paste può salvare immagini solo per file Markdown locali.",
+  "warning.unsavedMarkdown": "Salva questo file Markdown prima di incollare un'immagine."
+}

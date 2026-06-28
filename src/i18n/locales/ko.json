@@ -1,0 +1,10 @@
+{
+  "capabilities.untrustedWorkspaces": "이미지를 붙여 넣으면 현재 Markdown 파일의 assets 폴더 아래에 PNG 파일을 만듭니다.",
+  "error.createPasteEdit": "붙여 넣은 이미지를 준비할 수 없습니다.",
+  "error.nameCollision": "assets에서 사용하지 않은 이미지 파일 이름을 찾을 수 없습니다. 다시 붙여 넣으세요.",
+  "error.readPngData": "클립보드에서 PNG 데이터를 읽을 수 없습니다.",
+  "extension.description": "붙여 넣은 Markdown 이미지를 임의의 PNG 파일 이름으로 로컬 assets 폴더에 저장합니다.",
+  "paste.title": "이미지를 assets에 붙여넣기",
+  "warning.nonFileMarkdown": "otak-paste는 로컬 Markdown 파일에만 이미지를 저장할 수 있습니다.",
+  "warning.unsavedMarkdown": "이미지를 붙여 넣기 전에 이 Markdown 파일을 저장하세요."
+}

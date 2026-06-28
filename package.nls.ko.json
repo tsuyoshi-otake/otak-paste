@@ -1,0 +1,4 @@
+{
+  "capabilities.untrustedWorkspaces": "이미지를 붙여 넣으면 현재 Markdown 파일의 assets 폴더 아래에 PNG 파일을 만듭니다.",
+  "extension.description": "붙여 넣은 Markdown 이미지를 임의의 PNG 파일 이름으로 로컬 assets 폴더에 저장합니다."
+}

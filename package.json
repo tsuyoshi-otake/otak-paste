@@ -1,0 +1,71 @@
+{
+  "name": "otak-paste",
+  "displayName": "otak-paste",
+  "description": "%extension.description%",
+  "publisher": "odangoo",
+  "license": "MIT",
+  "icon": "images/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tsuyoshi-otake/otak-paste"
+  },
+  "bugs": {
+    "url": "https://github.com/tsuyoshi-otake/otak-paste/issues"
+  },
+  "homepage": "https://github.com/tsuyoshi-otake/otak-paste#readme",
+  "version": "0.1.0",
+  "files": [
+    "out/constants.js",
+    "out/constants.js.map",
+    "out/extension.js",
+    "out/extension.js.map",
+    "out/pathing.js",
+    "out/pathing.js.map",
+    "out/pasteImageProvider.js",
+    "out/pasteImageProvider.js.map",
+    "out/i18n/**/*.js",
+    "out/i18n/**/*.js.map",
+    "out/i18n/locales/*.json",
+    "images/**",
+    "package.nls*.json",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "vscode": "^1.125.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:markdown"
+  ],
+  "main": "./out/extension.js",
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true,
+      "description": "%capabilities.untrustedWorkspaces%"
+    },
+    "virtualWorkspaces": false
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "gen:nls": "node scripts/gen-package-nls.mjs",
+    "copy:locales": "node scripts/copy-locales.mjs",
+    "compile": "npm run gen:nls && tsc -p ./ && npm run copy:locales",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src",
+    "test": "npm run compile && node scripts/run-unit-tests.mjs",
+    "package": "npm run compile && vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "20.x",
+    "@types/vscode": "^1.125.0",
+    "@typescript-eslint/eslint-plugin": "^8.22.0",
+    "@typescript-eslint/parser": "^8.22.0",
+    "@vscode/vsce": "^3.9.2",
+    "eslint": "^9.19.0",
+    "typescript": "^5.7.3"
+  }
+}

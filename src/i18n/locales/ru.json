@@ -1,0 +1,10 @@
+{
+  "capabilities.untrustedWorkspaces": "Создает PNG-файлы в папке assets текущего Markdown-файла при вставке изображений.",
+  "error.createPasteEdit": "Не удалось подготовить вставленное изображение.",
+  "error.nameCollision": "Не удалось найти неиспользуемое имя файла изображения в assets. Попробуйте вставить снова.",
+  "error.readPngData": "Не удалось прочитать PNG-данные из буфера обмена.",
+  "extension.description": "Сохраняет вставленные Markdown-изображения в локальную папку assets со случайными именами PNG-файлов.",
+  "paste.title": "Вставить изображение в assets",
+  "warning.nonFileMarkdown": "otak-paste может сохранять изображения только для локальных Markdown-файлов.",
+  "warning.unsavedMarkdown": "Сохраните этот Markdown-файл перед вставкой изображения."
+}

@@ -1,0 +1,10 @@
+{
+  "capabilities.untrustedWorkspaces": "画像を貼り付けたとき、現在のMarkdownファイルのassetsフォルダーにPNGファイルを作成します。",
+  "error.createPasteEdit": "貼り付け画像を準備できませんでした。",
+  "error.nameCollision": "assets内で未使用の画像ファイル名を見つけられませんでした。もう一度貼り付けてください。",
+  "error.readPngData": "クリップボードからPNGデータを読み取れませんでした。",
+  "extension.description": "貼り付けたMarkdown画像を、ランダムなPNGファイル名でローカルassetsフォルダーに保存します。",
+  "paste.title": "画像をassetsに貼り付け",
+  "warning.nonFileMarkdown": "otak-pasteはローカルMarkdownファイルにのみ画像を保存できます。",
+  "warning.unsavedMarkdown": "画像を貼り付ける前に、このMarkdownファイルを保存してください。"
+}

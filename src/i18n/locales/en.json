@@ -1,0 +1,10 @@
+{
+  "capabilities.untrustedWorkspaces": "Creates PNG files under the current Markdown file's assets folder when you paste images.",
+  "error.createPasteEdit": "Couldn't prepare the pasted image.",
+  "error.nameCollision": "Couldn't find an unused image file name in assets. Try pasting again.",
+  "error.readPngData": "Couldn't read PNG data from the clipboard.",
+  "extension.description": "Save pasted Markdown images to a local assets folder with random PNG file names.",
+  "paste.title": "Paste image to assets",
+  "warning.nonFileMarkdown": "otak-paste can only save images for local Markdown files.",
+  "warning.unsavedMarkdown": "Save this Markdown file before pasting an image."
+}

@@ -1,0 +1,4 @@
+{
+  "capabilities.untrustedWorkspaces": "Tạo tệp PNG trong thư mục assets của tệp Markdown hiện tại khi bạn dán hình ảnh.",
+  "extension.description": "Lưu hình ảnh Markdown đã dán vào thư mục assets cục bộ với tên tệp PNG ngẫu nhiên."
+}

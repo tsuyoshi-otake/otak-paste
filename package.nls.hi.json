@@ -1,0 +1,4 @@
+{
+  "capabilities.untrustedWorkspaces": "जब आप छवियां पेस्ट करते हैं, तो वर्तमान Markdown फ़ाइल के assets फ़ोल्डर में PNG फ़ाइलें बनाता है।",
+  "extension.description": "पेस्ट की गई Markdown छवियों को यादृच्छिक PNG फ़ाइल नामों के साथ स्थानीय assets फ़ोल्डर में सहेजें।"
+}

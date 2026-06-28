@@ -1,0 +1,10 @@
+{
+  "capabilities.untrustedWorkspaces": "Görüntü yapıştırdığınızda geçerli Markdown dosyasının assets klasöründe PNG dosyaları oluşturur.",
+  "error.createPasteEdit": "Yapıştırılan görüntü hazırlanamadı.",
+  "error.nameCollision": "assets içinde kullanılmamış bir görüntü dosyası adı bulunamadı. Tekrar yapıştırmayı deneyin.",
+  "error.readPngData": "Panodan PNG verileri okunamadı.",
+  "extension.description": "Yapıştırılan Markdown görüntülerini rastgele PNG dosya adlarıyla yerel assets klasörüne kaydeder.",
+  "paste.title": "Görüntüyü assets'e yapıştır",
+  "warning.nonFileMarkdown": "otak-paste yalnızca yerel Markdown dosyaları için görüntü kaydedebilir.",
+  "warning.unsavedMarkdown": "Görüntü yapıştırmadan önce bu Markdown dosyasını kaydedin."
+}

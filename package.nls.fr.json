@@ -1,0 +1,4 @@
+{
+  "capabilities.untrustedWorkspaces": "Crée des fichiers PNG dans le dossier assets du fichier Markdown actuel lorsque vous collez des images.",
+  "extension.description": "Enregistre les images Markdown collées dans un dossier assets local avec des noms de fichiers PNG aléatoires."
+}

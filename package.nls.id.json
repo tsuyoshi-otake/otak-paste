@@ -1,0 +1,4 @@
+{
+  "capabilities.untrustedWorkspaces": "Membuat file PNG di folder assets milik file Markdown saat ini ketika Anda menempelkan gambar.",
+  "extension.description": "Simpan gambar Markdown yang ditempel ke folder assets lokal dengan nama file PNG acak."
+}

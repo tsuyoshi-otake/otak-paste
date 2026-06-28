@@ -1,0 +1,10 @@
+{
+  "capabilities.untrustedWorkspaces": "Crée des fichiers PNG dans le dossier assets du fichier Markdown actuel lorsque vous collez des images.",
+  "error.createPasteEdit": "Impossible de préparer l'image collée.",
+  "error.nameCollision": "Impossible de trouver un nom de fichier image inutilisé dans assets. Essayez de coller à nouveau.",
+  "error.readPngData": "Impossible de lire les données PNG depuis le presse-papiers.",
+  "extension.description": "Enregistre les images Markdown collées dans un dossier assets local avec des noms de fichiers PNG aléatoires.",
+  "paste.title": "Coller l'image dans assets",
+  "warning.nonFileMarkdown": "otak-paste ne peut enregistrer des images que pour des fichiers Markdown locaux.",
+  "warning.unsavedMarkdown": "Enregistrez ce fichier Markdown avant de coller une image."
+}

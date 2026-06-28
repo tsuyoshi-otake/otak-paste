@@ -1,0 +1,10 @@
+{
+  "capabilities.untrustedWorkspaces": "Crea archivos PNG en la carpeta assets del archivo Markdown actual cuando pegas imágenes.",
+  "error.createPasteEdit": "No se pudo preparar la imagen pegada.",
+  "error.nameCollision": "No se pudo encontrar un nombre de archivo de imagen sin usar en assets. Intenta pegar de nuevo.",
+  "error.readPngData": "No se pudieron leer los datos PNG del portapapeles.",
+  "extension.description": "Guarda imágenes pegadas en Markdown en una carpeta assets local con nombres PNG aleatorios.",
+  "paste.title": "Pegar imagen en assets",
+  "warning.nonFileMarkdown": "otak-paste solo puede guardar imágenes para archivos Markdown locales.",
+  "warning.unsavedMarkdown": "Guarda este archivo Markdown antes de pegar una imagen."
+}

@@ -1,0 +1,4 @@
+{
+  "capabilities.untrustedWorkspaces": "粘贴图像时，在当前 Markdown 文件的 assets 文件夹下创建 PNG 文件。",
+  "extension.description": "将粘贴的 Markdown 图像以随机 PNG 文件名保存到本地 assets 文件夹。"
+}

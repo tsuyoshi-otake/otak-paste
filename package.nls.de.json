@@ -1,0 +1,4 @@
+{
+  "capabilities.untrustedWorkspaces": "Erstellt PNG-Dateien im assets-Ordner der aktuellen Markdown-Datei, wenn Sie Bilder einfügen.",
+  "extension.description": "Speichert eingefügte Markdown-Bilder mit zufälligen PNG-Dateinamen in einem lokalen assets-Ordner."
+}

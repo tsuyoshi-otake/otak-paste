@@ -1,0 +1,4 @@
+{
+  "capabilities.untrustedWorkspaces": "Crea file PNG nella cartella assets del file Markdown corrente quando incolli immagini.",
+  "extension.description": "Salva le immagini Markdown incollate in una cartella assets locale con nomi file PNG casuali."
+}

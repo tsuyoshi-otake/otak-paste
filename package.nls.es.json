@@ -1,0 +1,4 @@
+{
+  "capabilities.untrustedWorkspaces": "Crea archivos PNG en la carpeta assets del archivo Markdown actual cuando pegas imágenes.",
+  "extension.description": "Guarda imágenes pegadas en Markdown en una carpeta assets local con nombres PNG aleatorios."
+}
