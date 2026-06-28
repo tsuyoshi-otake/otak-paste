@@ -1,4 +1,8 @@
 {
   "capabilities.untrustedWorkspaces": "Görüntü yapıştırdığınızda geçerli Markdown dosyasının assets klasöründe PNG dosyaları oluşturur.",
-  "extension.description": "Yapıştırılan Markdown görüntülerini rastgele PNG dosya adlarıyla yerel assets klasörüne kaydeder."
+  "configuration.pngOptimization.description": "Yapıştırılan PNG görüntülerinin kaydetmeden önce iyileştirilip iyileştirilmeyeceğini denetler.",
+  "configuration.pngOptimization.lossless": "PNG verilerini yeniden sıkıştırır ve görsel olmayan meta verileri kaldırır. Piksel çıktısı korunur; iyileştirme daha küçük değilse özgün dosya saklanır.",
+  "configuration.pngOptimization.none": "PNG verilerini VS Code'dan alındığı gibi kaydeder.",
+  "configuration.title": "otak-paste",
+  "extension.description": "Markdown görüntülerini assets içine yapıştırır ve daha küçük ekran görüntüleri için PNG'leri otomatik kayıpsız iyileştirir."
 }

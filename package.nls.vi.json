@@ -1,4 +1,8 @@
 {
   "capabilities.untrustedWorkspaces": "Tạo tệp PNG trong thư mục assets của tệp Markdown hiện tại khi bạn dán hình ảnh.",
-  "extension.description": "Lưu hình ảnh Markdown đã dán vào thư mục assets cục bộ với tên tệp PNG ngẫu nhiên."
+  "configuration.pngOptimization.description": "Kiểm soát việc tối ưu hóa ảnh PNG đã dán trước khi lưu.",
+  "configuration.pngOptimization.lossless": "Nén lại dữ liệu PNG và xóa siêu dữ liệu không ảnh hưởng đến hiển thị. Kết quả pixel được giữ nguyên, và tệp gốc được giữ lại nếu tối ưu hóa không nhỏ hơn.",
+  "configuration.pngOptimization.none": "Lưu dữ liệu PNG đúng như nhận từ VS Code.",
+  "configuration.title": "otak-paste",
+  "extension.description": "Dán ảnh Markdown vào assets với tối ưu PNG không mất dữ liệu tự động để ảnh chụp màn hình nhỏ hơn."
 }

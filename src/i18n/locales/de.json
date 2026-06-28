@@ -1,9 +1,13 @@
 {
   "capabilities.untrustedWorkspaces": "Erstellt PNG-Dateien im assets-Ordner der aktuellen Markdown-Datei, wenn Sie Bilder einfügen.",
+  "configuration.pngOptimization.description": "Legt fest, ob eingefügte PNG-Bilder vor dem Speichern optimiert werden.",
+  "configuration.pngOptimization.lossless": "Komprimiert PNG-Daten neu und entfernt nicht sichtbare Metadaten. Die Pixelausgabe bleibt erhalten; die Originaldatei wird beibehalten, wenn die Optimierung nicht kleiner ist.",
+  "configuration.pngOptimization.none": "Speichert PNG-Daten genau so, wie sie von VS Code empfangen wurden.",
+  "configuration.title": "otak-paste",
   "error.createPasteEdit": "Das eingefügte Bild konnte nicht vorbereitet werden.",
   "error.nameCollision": "In assets konnte kein unbenutzter Bilddateiname gefunden werden. Fügen Sie das Bild erneut ein.",
   "error.readPngData": "PNG-Daten konnten nicht aus der Zwischenablage gelesen werden.",
-  "extension.description": "Speichert eingefügte Markdown-Bilder mit zufälligen PNG-Dateinamen in einem lokalen assets-Ordner.",
+  "extension.description": "Fügt Markdown-Bilder in assets ein und optimiert PNGs automatisch verlustfrei für kleinere Screenshots.",
   "paste.title": "Bild in assets einfügen",
   "warning.nonFileMarkdown": "otak-paste kann Bilder nur für lokale Markdown-Dateien speichern.",
   "warning.unsavedMarkdown": "Speichern Sie diese Markdown-Datei, bevor Sie ein Bild einfügen."

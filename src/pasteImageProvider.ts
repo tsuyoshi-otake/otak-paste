@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { getPngOptimizationMode } from './configuration';
 import { ASSET_DIRECTORY_NAME } from './constants';
 import { I18nManager } from './i18n/I18nManager';
 import {
@@ -7,6 +8,7 @@ import {
     pickUniquePngFileName,
     UniqueFileNameError
 } from './pathing';
+import { optimizePngBytes } from './pngOptimizer';
 
 const PNG_MIME_TYPE = 'image/png';
 
@@ -88,12 +90,17 @@ export class OtakPasteProvider implements vscode.DocumentPasteEditProvider<OtakP
                 return pasteEdit;
             }
 
+            const pngBytes = await optimizePngBytes(pasteEdit.pngBytes, getPngOptimizationMode());
+            if (token.isCancellationRequested) {
+                return pasteEdit;
+            }
+
             await vscode.workspace.fs.createDirectory(assetDirectory);
 
             const imageUri = vscode.Uri.joinPath(assetDirectory, fileName);
             const relativePath = buildAssetRelativePath(fileName);
             const additionalEdit = new vscode.WorkspaceEdit();
-            additionalEdit.createFile(imageUri, { contents: pasteEdit.pngBytes });
+            additionalEdit.createFile(imageUri, { contents: pngBytes });
 
             pasteEdit.insertText = new vscode.SnippetString(buildMarkdownImageSnippet(relativePath));
             pasteEdit.additionalEdit = additionalEdit;

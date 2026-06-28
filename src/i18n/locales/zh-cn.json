@@ -1,9 +1,13 @@
 {
   "capabilities.untrustedWorkspaces": "粘贴图像时，在当前 Markdown 文件的 assets 文件夹下创建 PNG 文件。",
+  "configuration.pngOptimization.description": "控制保存前是否优化粘贴的 PNG 图像。",
+  "configuration.pngOptimization.lossless": "重新压缩 PNG 数据并移除不影响显示的元数据。保持像素输出不变；如果优化后没有更小，则保存原始文件。",
+  "configuration.pngOptimization.none": "按从 VS Code 收到的原样保存 PNG 数据。",
+  "configuration.title": "otak-paste",
   "error.createPasteEdit": "无法准备粘贴的图像。",
   "error.nameCollision": "无法在 assets 中找到未使用的图像文件名。请重新粘贴。",
   "error.readPngData": "无法从剪贴板读取 PNG 数据。",
-  "extension.description": "将粘贴的 Markdown 图像以随机 PNG 文件名保存到本地 assets 文件夹。",
+  "extension.description": "将粘贴到 Markdown 的图像自动进行无损 PNG 优化，并以更小的截图保存到 assets。",
   "paste.title": "将图像粘贴到 assets",
   "warning.nonFileMarkdown": "otak-paste 只能为本地 Markdown 文件保存图像。",
   "warning.unsavedMarkdown": "粘贴图像前请先保存此 Markdown 文件。"

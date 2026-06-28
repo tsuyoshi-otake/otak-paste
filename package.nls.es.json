@@ -1,4 +1,8 @@
 {
   "capabilities.untrustedWorkspaces": "Crea archivos PNG en la carpeta assets del archivo Markdown actual cuando pegas imágenes.",
-  "extension.description": "Guarda imágenes pegadas en Markdown en una carpeta assets local con nombres PNG aleatorios."
+  "configuration.pngOptimization.description": "Controla si las imágenes PNG pegadas se optimizan antes de guardarlas.",
+  "configuration.pngOptimization.lossless": "Vuelve a comprimir los datos PNG y elimina metadatos no visuales. La salida de píxeles se conserva y se mantiene el archivo original si la optimización no reduce el tamaño.",
+  "configuration.pngOptimization.none": "Guarda los datos PNG exactamente como los recibe de VS Code.",
+  "configuration.title": "otak-paste",
+  "extension.description": "Pega imágenes de Markdown en assets con optimización PNG sin pérdida automática para capturas más pequeñas."
 }

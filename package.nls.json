@@ -1,4 +1,8 @@
 {
   "capabilities.untrustedWorkspaces": "Creates PNG files under the current Markdown file's assets folder when you paste images.",
-  "extension.description": "Save pasted Markdown images to a local assets folder with random PNG file names."
+  "configuration.pngOptimization.description": "Controls whether pasted PNG images are optimized before saving.",
+  "configuration.pngOptimization.lossless": "Recompresses PNG data and removes non-visual metadata. Pixel output is preserved, and the original file is kept when optimization is not smaller.",
+  "configuration.pngOptimization.none": "Saves PNG data exactly as received from VS Code.",
+  "configuration.title": "otak-paste",
+  "extension.description": "Paste Markdown images into assets with automatic lossless PNG optimization to keep screenshots smaller."
 }

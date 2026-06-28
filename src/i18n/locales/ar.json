@@ -1,9 +1,13 @@
 {
   "capabilities.untrustedWorkspaces": "ينشئ ملفات PNG داخل مجلد assets لملف Markdown الحالي عند لصق الصور.",
+  "configuration.pngOptimization.description": "يتحكم في تحسين صور PNG الملصقة قبل حفظها.",
+  "configuration.pngOptimization.lossless": "يعيد ضغط بيانات PNG ويزيل البيانات الوصفية غير المرئية. يتم الحفاظ على ناتج البكسل، ويتم الاحتفاظ بالملف الأصلي إذا لم يقلل التحسين الحجم.",
+  "configuration.pngOptimization.none": "يحفظ بيانات PNG كما تم تلقيها من VS Code تمامًا.",
+  "configuration.title": "otak-paste",
   "error.createPasteEdit": "تعذر تجهيز الصورة الملصقة.",
   "error.nameCollision": "تعذر العثور على اسم ملف صورة غير مستخدم في assets. حاول اللصق مرة أخرى.",
   "error.readPngData": "تعذرت قراءة بيانات PNG من الحافظة.",
-  "extension.description": "يحفظ صور Markdown الملصقة في مجلد assets محلي بأسماء ملفات PNG عشوائية.",
+  "extension.description": "الصق صور Markdown في assets مع تحسين PNG تلقائي بلا فقدان لتقليل حجم لقطات الشاشة.",
   "paste.title": "لصق الصورة في assets",
   "warning.nonFileMarkdown": "يمكن لـ otak-paste حفظ الصور لملفات Markdown المحلية فقط.",
   "warning.unsavedMarkdown": "احفظ ملف Markdown هذا قبل لصق صورة."

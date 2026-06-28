@@ -1,4 +1,8 @@
 {
   "capabilities.untrustedWorkspaces": "Membuat file PNG di folder assets milik file Markdown saat ini ketika Anda menempelkan gambar.",
-  "extension.description": "Simpan gambar Markdown yang ditempel ke folder assets lokal dengan nama file PNG acak."
+  "configuration.pngOptimization.description": "Mengatur apakah gambar PNG yang ditempel dioptimalkan sebelum disimpan.",
+  "configuration.pngOptimization.lossless": "Mengompresi ulang data PNG dan menghapus metadata non-visual. Output piksel dipertahankan, dan file asli dipakai jika optimasi tidak lebih kecil.",
+  "configuration.pngOptimization.none": "Menyimpan data PNG persis seperti diterima dari VS Code.",
+  "configuration.title": "otak-paste",
+  "extension.description": "Tempel gambar Markdown ke assets dengan optimasi PNG lossless otomatis agar tangkapan layar lebih kecil."
 }

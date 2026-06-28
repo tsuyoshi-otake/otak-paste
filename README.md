@@ -2,8 +2,8 @@
 
 # otak-paste
 
-**Paste an image into your Markdown and just keep writing.**  
-otak-paste saves it to a local `assets/` folder and writes the link for you, with no network calls and nothing leaving your machine.
+**Paste optimized screenshots into Markdown and keep your repository lighter.**  
+otak-paste saves clipboard PNGs to a local `assets/` folder, applies lossless optimization when it can reduce size without changing pixels, and writes the Markdown link for you.
 
 [![VS Marketplace](https://img.shields.io/visual-studio-marketplace/v/odangoo.otak-paste?label=Marketplace&color=1d4ed8)](https://marketplace.visualstudio.com/items?itemName=odangoo.otak-paste)
 [![VS Code engine](https://img.shields.io/badge/VS%20Code-%5E1.125.0-007acc)](https://code.visualstudio.com/)
@@ -11,6 +11,7 @@ otak-paste saves it to a local `assets/` folder and writes the link for you, wit
 [![GitHub](https://img.shields.io/badge/GitHub-otak--paste-24292f)](https://github.com/tsuyoshi-otake/otak-paste)
 
 ![100% local processing](https://img.shields.io/badge/processing-100%25%20local-0f766e)
+![Lossless PNG optimization](https://img.shields.io/badge/PNG%20optimization-lossless-2563eb)
 ![No telemetry](https://img.shields.io/badge/telemetry-none-64748b)
 ![Zero network calls](https://img.shields.io/badge/network-zero%20calls-7c3aed)
 ![Works offline](https://img.shields.io/badge/offline-ready-334155)
@@ -23,7 +24,7 @@ otak-paste saves it to a local `assets/` folder and writes the link for you, wit
 
 ---
 
-Teams writing documentation in Markdown handle the same chore on every screenshot: save the file, name it, move it into the repository, then type out the link. **otak-paste reduces all of it to a single paste** and does so entirely on your machine, with no network access and no data collection.
+Teams writing documentation in Markdown handle the same chore on every screenshot: save the file, name it, move it into the repository, then type out the link. Screenshot-heavy docs also make repository history grow quickly. **otak-paste reduces the workflow to a single paste and keeps PNG assets smaller by default** with local, lossless optimization, no network access, and no data collection.
 
 ## Quick Start
 
@@ -32,7 +33,7 @@ Teams writing documentation in Markdown handle the same chore on every screensho
 3. Copy a PNG, or take a screenshot.
 4. Paste with <kbd>Ctrl</kbd>+<kbd>V</kbd> (<kbd>Cmd</kbd>+<kbd>V</kbd> on macOS).
 
-otak-paste writes the image next to your file and inserts the link:
+otak-paste optimizes the PNG when it can save space, writes the image next to your file, and inserts the link:
 
 ```markdown
 ![image](assets/4f8c9a01d2b3e4f5.png)
@@ -44,7 +45,9 @@ The `image` alt text is **pre-selected**, so you can type a real description rig
 
 - **One-keystroke flow**: runs from the normal editor paste action. No commands, no dialogs.
 - **Local-first assets**: images are written to an `assets/` folder beside the current file, never scattered across the workspace.
+- **Smaller Markdown repositories**: pasted screenshots are losslessly recompressed before saving, which can reduce asset size and future Git diffs without changing the visible image.
 - **Unique filenames**: each file receives a random 16-character hex name such as `4f8c9a01d2b3e4f5.png`.
+- **Configurable optimization**: keep the default `lossless` mode, or choose `none` when you need byte-for-byte clipboard output.
 - **Editable alt text**: the alt text is selected on paste, ready to describe.
 - **Non-intrusive**: no success pop-ups; it stays out of your workflow.
 - **Localized interface**: UI messages follow your VS Code display language.
@@ -56,10 +59,19 @@ When a PNG is on your clipboard and the active editor is a saved Markdown file, 
 1. Resolves the Markdown file's directory.
 2. Creates an `assets/` folder if one does not exist.
 3. Generates a random 16-character hex filename.
-4. Writes the pasted PNG into `assets/`.
-5. Inserts the Markdown image link at the cursor.
+4. Optimizes the PNG when `otakPaste.pngOptimization` allows it and the result is smaller.
+5. Writes the pasted PNG into `assets/`.
+6. Inserts the Markdown image link at the cursor.
 
 Anything outside those conditions is handed back to VS Code's default paste behavior. otak-paste only handles the specific case it was built for.
+
+## Settings
+
+PNG optimization is enabled by default because documentation screenshots often contain compressible metadata or under-compressed image data. otak-paste only keeps the optimized result when it is smaller; otherwise it writes the original PNG bytes.
+
+| Setting | Default | Values |
+| --- | --- | --- |
+| `otakPaste.pngOptimization` | `lossless` | `lossless` recompresses PNG data and removes non-visual metadata while preserving pixels; `none` saves the bytes exactly as received from VS Code |
 
 ## Supported Scenarios
 
@@ -76,6 +88,7 @@ Anything outside those conditions is handed back to VS Code's default paste beha
 otak-paste is designed to run safely inside locked-down, regulated, and air-gapped environments.
 
 - **100% local processing**: images are handled entirely on your machine.
+- **Local optimization only**: PNG recompression runs inside the extension host and never uploads image data.
 - **Zero network access**: it never uploads images or transmits clipboard data anywhere.
 - **No telemetry**: no analytics, usage tracking, or external calls of any kind.
 - **No account or API key**: nothing to sign in to, nothing to provision.
@@ -109,7 +122,7 @@ ext install odangoo.otak-paste
 ```bash
 npm install
 npm run package
-code --install-extension otak-paste-0.1.2.vsix
+code --install-extension otak-paste-0.2.0.vsix
 ```
 
 Reload VS Code afterwards if the Markdown editor was already open.

@@ -1,4 +1,8 @@
 {
   "capabilities.untrustedWorkspaces": "Cria arquivos PNG na pasta assets do arquivo Markdown atual quando você cola imagens.",
-  "extension.description": "Salva imagens coladas no Markdown em uma pasta assets local com nomes de arquivo PNG aleatórios."
+  "configuration.pngOptimization.description": "Controla se as imagens PNG coladas são otimizadas antes de salvar.",
+  "configuration.pngOptimization.lossless": "Recomprime os dados PNG e remove metadados não visuais. A saída de pixels é preservada, e o arquivo original é mantido quando a otimização não reduz o tamanho.",
+  "configuration.pngOptimization.none": "Salva os dados PNG exatamente como recebidos do VS Code.",
+  "configuration.title": "otak-paste",
+  "extension.description": "Cole imagens Markdown em assets com otimização PNG sem perdas automática para capturas de tela menores."
 }

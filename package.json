@@ -13,8 +13,10 @@
     "url": "https://github.com/tsuyoshi-otake/otak-paste/issues"
   },
   "homepage": "https://github.com/tsuyoshi-otake/otak-paste#readme",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "files": [
+    "out/configuration.js",
+    "out/configuration.js.map",
     "out/constants.js",
     "out/constants.js.map",
     "out/extension.js",
@@ -23,6 +25,10 @@
     "out/pathing.js.map",
     "out/pasteImageProvider.js",
     "out/pasteImageProvider.js.map",
+    "out/pngOptimizationMode.js",
+    "out/pngOptimizationMode.js.map",
+    "out/pngOptimizer.js",
+    "out/pngOptimizer.js.map",
     "out/i18n/**/*.js",
     "out/i18n/**/*.js.map",
     "out/i18n/locales/*.json",
@@ -48,6 +54,27 @@
       "description": "%capabilities.untrustedWorkspaces%"
     },
     "virtualWorkspaces": false
+  },
+  "contributes": {
+    "configuration": {
+      "title": "%configuration.title%",
+      "properties": {
+        "otakPaste.pngOptimization": {
+          "type": "string",
+          "scope": "resource",
+          "default": "lossless",
+          "enum": [
+            "lossless",
+            "none"
+          ],
+          "enumDescriptions": [
+            "%configuration.pngOptimization.lossless%",
+            "%configuration.pngOptimization.none%"
+          ],
+          "markdownDescription": "%configuration.pngOptimization.description%"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

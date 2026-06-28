@@ -1,4 +1,8 @@
 {
   "capabilities.untrustedWorkspaces": "जब आप छवियां पेस्ट करते हैं, तो वर्तमान Markdown फ़ाइल के assets फ़ोल्डर में PNG फ़ाइलें बनाता है।",
-  "extension.description": "पेस्ट की गई Markdown छवियों को यादृच्छिक PNG फ़ाइल नामों के साथ स्थानीय assets फ़ोल्डर में सहेजें।"
+  "configuration.pngOptimization.description": "चिपकाई गई PNG छवियों को सहेजने से पहले अनुकूलित करना है या नहीं, यह नियंत्रित करता है।",
+  "configuration.pngOptimization.lossless": "PNG डेटा को दोबारा संपीड़ित करता है और गैर-दृश्य मेटाडेटा हटाता है। पिक्सेल आउटपुट सुरक्षित रहता है; अगर अनुकूलन से आकार कम नहीं होता, तो मूल फ़ाइल रखी जाती है।",
+  "configuration.pngOptimization.none": "PNG डेटा को VS Code से मिले रूप में ही सहेजता है।",
+  "configuration.title": "otak-paste",
+  "extension.description": "Markdown छवियों को assets में पेस्ट करें और छोटे स्क्रीनशॉट के लिए स्वचालित दोषरहित PNG अनुकूलन करें।"
 }

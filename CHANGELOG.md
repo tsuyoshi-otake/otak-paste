@@ -1,5 +1,16 @@
 # Change Log
 
+## [0.2.0] - 2026-06-28
+
+### Added
+- Added configurable pasted PNG optimization via `otakPaste.pngOptimization` with `lossless` and `none` modes. (#2)
+- Highlighted lossless PNG optimization benefits in the Marketplace description and README. (#2)
+
+## [0.1.3] - 2026-06-28
+
+### Changed
+- Replaced the extension icon asset set with the latest otak-paste icons.
+
 ## [0.1.2] - 2026-06-28
 
 ### Changed
