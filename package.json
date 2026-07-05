@@ -114,7 +114,9 @@
     "lint": "eslint src",
     "test": "npm run compile && node scripts/run-unit-tests.mjs",
     "test:e2e": "npm run compile && node scripts/run-e2e-tests.mjs",
-    "package": "npm run compile && vsce package"
+    "package": "npm run compile && vsce package",
+    "package:vsix": "npm run compile && vsce package",
+    "deploy": "vsce publish --skip-duplicate"
   },
   "devDependencies": {
     "@types/node": "20.x",
