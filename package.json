@@ -116,7 +116,8 @@
     "test:e2e": "npm run compile && node scripts/run-e2e-tests.mjs",
     "package": "npm run compile && vsce package",
     "package:vsix": "npm run compile && vsce package",
-    "deploy": "vsce publish --skip-duplicate"
+    "deploy": "vsce publish --skip-duplicate",
+    "deploy:ovsx": "ovsx publish --skip-duplicate"
   },
   "devDependencies": {
     "@types/node": "20.x",
@@ -126,6 +127,7 @@
     "@vscode/test-electron": "^3.0.0",
     "@vscode/vsce": "^3.9.2",
     "eslint": "^9.19.0",
+    "ovsx": "^0.10.12",
     "typescript": "^5.7.3"
   }
 }
