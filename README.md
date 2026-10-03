@@ -91,6 +91,9 @@ PNG optimization is enabled by default because documentation screenshots often c
 | The clipboard holds **PNG image data** | Clipboard **text**, and non-PNG data such as JPEG, GIF, or WebP |
 | Direct paste into a Markdown editor | Notebook Markdown cells |
 | | Copied image **files** rather than image data |
+| | A clipboard holding **both text and an image** (for example Excel cells): the text is pasted |
+
+To paste the image from a clipboard that also holds text, run **Paste As...** (`editor.action.pasteAs`) and pick **Paste image to assets**.
 
 > Only local `file:` Markdown documents are supported in v1.
 
