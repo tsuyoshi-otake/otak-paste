@@ -49,31 +49,78 @@ test('optimizePngBytesLossless keeps unsupported PNG data unchanged', async () =
     assert.strictEqual(await optimizePngBytesLossless(apng), apng);
 });
 
+test('optimizePngBytesLossless decodes Adam7-interlaced image data of the size IHDR declares', async () => {
+    // A 3x3 grayscale image is split into five non-empty passes with six scanlines: 9 + 6 bytes.
+    const original = createPng({
+        width: 3,
+        height: 3,
+        colorType: 0,
+        interlaceMethod: 1,
+        imageData: Buffer.from([0, 1, 0, 2, 0, 3, 4, 0, 5, 0, 6, 0, 7, 8, 9]),
+        compressionLevel: 0,
+        text: 'metadata'.repeat(64)
+    });
+
+    const optimized = await optimizePngBytesLossless(original);
+
+    assert.ok(optimized.byteLength < original.byteLength, `${optimized.byteLength} should be below ${original.byteLength}`);
+    assert.deepStrictEqual(inflateIdat(optimized), inflateIdat(original));
+});
+
+test('optimizePngBytes keeps PNGs whose IDAT data inflates beyond the size IHDR declares unchanged', async () => {
+    // 2x1 RGBA declares 9 bytes of scanlines.
+    const oneByteOver = createPng({ imageData: Buffer.alloc(10), compressionLevel: 0 });
+    // 1x1 RGBA declares 5 bytes, but the IDAT data inflates to 1 MiB.
+    const compressionBomb = createPng({
+        width: 1,
+        imageData: Buffer.alloc(1024 * 1024),
+        compressionLevel: 1
+    });
+
+    await assert.rejects(optimizePngBytesLossless(oneByteOver), RangeError);
+    await assert.rejects(optimizePngBytesLossless(compressionBomb), RangeError);
+    assert.strictEqual(await optimizePngBytes(compressionBomb, 'lossless'), compressionBomb);
+});
+
+test('optimizePngBytesLossless keeps PNGs without IHDR or above the decoding size cap unchanged', async () => {
+    const withoutHeader = createPng({ omitHeader: true, compressionLevel: 0, text: 'metadata'.repeat(64) });
+    // 8192x8192 RGBA declares 8192 * (1 + 8192 * 4) bytes, above the 128 MiB cap.
+    const oversized = createPng({ width: 8192, height: 8192, compressionLevel: 0, text: 'metadata'.repeat(64) });
+
+    assert.strictEqual(await optimizePngBytesLossless(withoutHeader), withoutHeader);
+    assert.strictEqual(await optimizePngBytesLossless(oversized), oversized);
+});
+
 interface TestPngOptions {
     readonly animationControl?: boolean;
     readonly compressionLevel: number;
     readonly text?: string;
+    readonly width?: number;
+    readonly height?: number;
+    readonly colorType?: number;
+    readonly interlaceMethod?: number;
+    readonly imageData?: Buffer;
+    readonly omitHeader?: boolean;
 }
 
+// An 8-bit image, 2x1 RGBA unless the options say otherwise.
 function createPng(options: TestPngOptions): Uint8Array {
-    const width = 2;
-    const height = 1;
     const ihdr = Buffer.alloc(13);
-    ihdr.writeUInt32BE(width, 0);
-    ihdr.writeUInt32BE(height, 4);
+    ihdr.writeUInt32BE(options.width ?? 2, 0);
+    ihdr.writeUInt32BE(options.height ?? 1, 4);
     ihdr[8] = 8;
-    ihdr[9] = 6;
+    ihdr[9] = options.colorType ?? 6;
     ihdr[10] = 0;
     ihdr[11] = 0;
-    ihdr[12] = 0;
+    ihdr[12] = options.interlaceMethod ?? 0;
 
-    const imageData = Buffer.from([
+    const imageData = options.imageData ?? Buffer.from([
         0,
         255, 0, 0, 255,
         0, 0, 255, 255
     ]);
 
-    const chunks = [
+    const chunks = options.omitHeader ? [] : [
         createPngChunk('IHDR', ihdr)
     ];
 

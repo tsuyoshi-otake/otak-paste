@@ -10,7 +10,7 @@ Add-Type -AssemblyName System.Drawing
 
 # An app can publish the original image under the registered PNG format next to the bitmap.
 # GetImage() goes through the bitmap, which drops transparency and re-encodes, so that PNG
-# is used as-is when its chunk structure and checksums are intact. The format is read as raw
+# is used as-is when its header, chunk order, and checksums are valid. The format is read as raw
 # clipboard memory because the WinForms clipboard API can deserialize .NET objects that another
 # process put on the clipboard.
 try {
@@ -83,7 +83,8 @@ public static class OtakPasteClipboardPng {
     }
 
     // A clipboard block can be larger than the data in it, so the PNG ends at its IEND chunk.
-    // Returns that length, or -1 unless IHDR comes first and every chunk's CRC matches.
+    // Returns that length, or -1 unless every chunk's CRC matches, a valid IHDR comes first,
+    // an indexed-color image has PLTE before its image data, and IDAT precedes an empty IEND.
     static int FindPngEnd(byte[] data) {
         if (data.Length < Signature.Length) {
             return -1;
@@ -94,26 +95,68 @@ public static class OtakPasteClipboardPng {
             }
         }
         int offset = Signature.Length;
+        int colorType = -1;
+        bool hasPalette = false;
+        bool hasImageData = false;
         while (data.Length - offset >= 12) {
             uint length = ReadUInt32(data, offset);
             if (length > (uint)(data.Length - offset - 12)) {
                 return -1;
             }
             int typeOffset = offset + 4;
-            int crcOffset = typeOffset + 4 + (int)length;
+            int dataOffset = typeOffset + 4;
+            int crcOffset = dataOffset + (int)length;
             if (Crc32(data, typeOffset, 4 + (int)length) != ReadUInt32(data, crcOffset)) {
                 return -1;
             }
             bool isHeader = IsChunkType(data, typeOffset, "IHDR");
-            if (isHeader != (offset == Signature.Length) || (isHeader && length != 13)) {
+            if (isHeader != (offset == Signature.Length)) {
                 return -1;
             }
             offset = crcOffset + 4;
-            if (IsChunkType(data, typeOffset, "IEND")) {
-                return offset;
+            if (isHeader) {
+                if (length != 13 || !IsValidHeader(data, dataOffset)) {
+                    return -1;
+                }
+                colorType = data[dataOffset + 9];
+            } else if (IsChunkType(data, typeOffset, "PLTE")) {
+                hasPalette = true;
+            } else if (IsChunkType(data, typeOffset, "IDAT")) {
+                if (colorType == 3 && !hasPalette) {
+                    return -1;
+                }
+                hasImageData = true;
+            } else if (IsChunkType(data, typeOffset, "IEND")) {
+                return hasImageData && length == 0 ? offset : -1;
             }
         }
         return -1;
+    }
+
+    // Width and height are 1 to 2^31-1; each color type allows only its own bit depths;
+    // compression and filter methods are 0, and interlace is none (0) or Adam7 (1).
+    static bool IsValidHeader(byte[] data, int offset) {
+        uint width = ReadUInt32(data, offset);
+        uint height = ReadUInt32(data, offset + 4);
+        if (width == 0 || width > int.MaxValue || height == 0 || height > int.MaxValue) {
+            return false;
+        }
+        if (data[offset + 10] != 0 || data[offset + 11] != 0 || data[offset + 12] > 1) {
+            return false;
+        }
+        int bitDepth = data[offset + 8];
+        switch (data[offset + 9]) {
+            case 0:
+                return bitDepth == 1 || bitDepth == 2 || bitDepth == 4 || bitDepth == 8 || bitDepth == 16;
+            case 3:
+                return bitDepth == 1 || bitDepth == 2 || bitDepth == 4 || bitDepth == 8;
+            case 2:
+            case 4:
+            case 6:
+                return bitDepth == 8 || bitDepth == 16;
+            default:
+                return false;
+        }
     }
 
     static bool IsChunkType(byte[] data, int offset, string type) {

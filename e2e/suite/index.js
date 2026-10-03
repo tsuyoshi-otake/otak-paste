@@ -2,10 +2,21 @@ const assert = require('node:assert');
 const childProcess = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
+const zlib = require('node:zlib');
 const vscode = require('vscode');
 
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 const PNG_IEND_CHUNK = Buffer.from('0000000049454e44ae426082', 'hex');
+// setClipboardImage always puts an 8x8 bitmap on the clipboard; the test PNGs are 1x1.
+const CLIPBOARD_BITMAP_SIZE = 8;
+// Each edit breaks one structural rule of the 1x1 test PNG while keeping every chunk CRC valid.
+const BROKEN_PNG_EDITS = [
+  ['without IEND', chunks => chunks.filter(([type]) => type !== 'IEND')],
+  ['without IDAT', chunks => chunks.filter(([type]) => type !== 'IDAT')],
+  ['with a non-empty IEND', chunks => chunks.map(([type, data]) => [type, type === 'IEND' ? Buffer.from([0]) : data])],
+  ['with an undefined IHDR color type', chunks => withHeaderColorType(chunks, 5)],
+  ['with an indexed color type but no PLTE', chunks => withHeaderColorType(chunks, 3)],
+];
 const WAIT_TIMEOUT_MS = 5000;
 const WAIT_INTERVAL_MS = 50;
 const OTAK_PASTE_EDIT_KIND = 'markdown.image.otakPaste';
@@ -163,7 +174,7 @@ async function imageClipboardSavesAssetAndUndoRemovesIt(workspacePath, powerShel
 
 async function pngClipboardFormatIsSavedAsIs(workspacePath, powerShell) {
   await withoutPngOptimization(async () => {
-    const sourcePng = setClipboardImage({ pngFormat: 'complete' });
+    const sourcePng = setClipboardImage({ png: 'encoded' });
     // IHDR color type 6 is RGBA: the source carries the transparency that must survive.
     assert.strictEqual(sourcePng[25], 6, 'the clipboard PNG should have an alpha channel');
 
@@ -175,16 +186,67 @@ async function pngClipboardFormatIsSavedAsIs(workspacePath, powerShell) {
 
 async function brokenPngClipboardFormatFallsBackToBitmap(workspacePath, powerShell) {
   await withoutPngOptimization(async () => {
-    setClipboardImage({ pngFormat: 'withoutIend' });
+    // The unedited test PNG is taken as-is, so each edit below is the only reason for a fallback.
+    const intactPng = createTestPng();
+    setClipboardImage({ png: intactPng });
+    const intact = await pasteImageIntoNewMarkdown(workspacePath, powerShell, 'intact-png-format.md');
+    assert.ok(intact.savedPng.equals(intactPng), 'the intact test PNG clipboard format should be saved as-is');
 
-    const { imagePath, savedPng } = await pasteImageIntoNewMarkdown(workspacePath, powerShell, 'broken-png-format.md');
-    assert.ok(
-      savedPng.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE) &&
-        savedPng.subarray(-PNG_IEND_CHUNK.length).equals(PNG_IEND_CHUNK),
-      'a PNG clipboard format without IEND should be skipped for the bitmap, saved as a complete PNG'
-    );
-    console.log(`E2E broken PNG clipboard format fell back to bitmap: ${imagePath}`);
+    for (const [description, edit] of BROKEN_PNG_EDITS) {
+      setClipboardImage({ png: createTestPng(edit) });
+
+      const { imagePath, savedPng } = await pasteImageIntoNewMarkdown(workspacePath, powerShell, 'broken-png-format.md');
+      assert.ok(
+        savedPng.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE) &&
+          savedPng.subarray(-PNG_IEND_CHUNK.length).equals(PNG_IEND_CHUNK) &&
+          savedPng.readUInt32BE(16) === CLIPBOARD_BITMAP_SIZE,
+        `a PNG clipboard format ${description} should be skipped for the bitmap, saved as a complete PNG`
+      );
+      console.log(`E2E broken PNG clipboard format fell back to bitmap (${description}): ${imagePath}`);
+    }
   });
+}
+
+// A 1x1 RGBA PNG; `edit` takes and returns its chunks as [type, data] pairs.
+function createTestPng(edit = chunks => chunks) {
+  const header = Buffer.from([0, 0, 0, 1, 0, 0, 0, 1, 8, 6, 0, 0, 0]);
+  const chunks = edit([
+    ['IHDR', header],
+    ['IDAT', zlib.deflateSync(Buffer.from([0, 32, 120, 220, 128]))],
+    ['IEND', Buffer.alloc(0)],
+  ]);
+  return Buffer.concat([PNG_SIGNATURE, ...chunks.map(([type, data]) => createPngChunk(type, data))]);
+}
+
+function withHeaderColorType(chunks, colorType) {
+  return chunks.map(([type, data]) => {
+    if (type !== 'IHDR') {
+      return [type, data];
+    }
+    const header = Buffer.from(data);
+    header[9] = colorType;
+    return [type, header];
+  });
+}
+
+function createPngChunk(type, data) {
+  const chunk = Buffer.alloc(12 + data.length);
+  chunk.writeUInt32BE(data.length, 0);
+  chunk.write(type, 4, 'latin1');
+  data.copy(chunk, 8);
+  chunk.writeUInt32BE(crc32(chunk.subarray(4, 8 + data.length)), 8 + data.length);
+  return chunk;
+}
+
+function crc32(bytes) {
+  let crc = 0xffffffff;
+  for (const byte of bytes) {
+    crc ^= byte;
+    for (let bit = 0; bit < 8; bit += 1) {
+      crc = crc & 1 ? (crc >>> 1) ^ 0xedb88320 : crc >>> 1;
+    }
+  }
+  return (crc ^ 0xffffffff) >>> 0;
 }
 
 // `none` keeps the optimizer out, so a saved file shows exactly what the reader returned.
@@ -281,10 +343,10 @@ function listAssets(workspacePath) {
 }
 
 // Puts an 8x8 bitmap on the clipboard. `text` adds text (a mixed clipboard);
-// `pngFormat` makes the image half-transparent, also publishes it in the
-// registered PNG format next to the bitmap, and returns those PNG bytes:
-// 'complete' publishes the whole PNG, 'withoutIend' drops its final IEND chunk.
-function setClipboardImage({ text, pngFormat } = {}) {
+// `png` makes the bitmap half-transparent and also publishes PNG data in the
+// registered PNG format next to it: 'encoded' publishes the bitmap encoded as PNG
+// and returns those bytes; a Buffer is published as given.
+function setClipboardImage({ text, png } = {}) {
   const script = `
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Windows.Forms
@@ -296,15 +358,17 @@ try {
     $graphics.Clear([System.Drawing.Color]::FromArgb($alpha, 32, 120, 220))
     $data = New-Object System.Windows.Forms.DataObject
     $data.SetImage($bitmap)
-    if ($env:OTAK_PASTE_E2E_CLIPBOARD_PNG) {
+    # The variable is 'encoded' or the Base64 of the PNG data to publish.
+    if ($env:OTAK_PASTE_E2E_CLIPBOARD_PNG -eq 'encoded') {
         $encoded = New-Object System.IO.MemoryStream
         $bitmap.Save($encoded, [System.Drawing.Imaging.ImageFormat]::Png)
         $pngBytes = $encoded.ToArray()
-        if ($env:OTAK_PASTE_E2E_CLIPBOARD_PNG -eq 'withoutIend') {
-            $pngBytes = [byte[]]$pngBytes[0..($pngBytes.Length - 13)]
-        }
-        $data.SetData('PNG', (New-Object System.IO.MemoryStream (,$pngBytes)))
         [Console]::Out.Write([Convert]::ToBase64String($pngBytes))
+    } elseif ($env:OTAK_PASTE_E2E_CLIPBOARD_PNG) {
+        $pngBytes = [Convert]::FromBase64String($env:OTAK_PASTE_E2E_CLIPBOARD_PNG)
+    }
+    if ($env:OTAK_PASTE_E2E_CLIPBOARD_PNG) {
+        $data.SetData('PNG', (New-Object System.IO.MemoryStream (,$pngBytes)))
     }
     if ($env:OTAK_PASTE_E2E_CLIPBOARD_TEXT) {
         $data.SetText($env:OTAK_PASTE_E2E_CLIPBOARD_TEXT)
@@ -320,8 +384,8 @@ try {
   if (text !== undefined) {
     env.OTAK_PASTE_E2E_CLIPBOARD_TEXT = text;
   }
-  if (pngFormat !== undefined) {
-    env.OTAK_PASTE_E2E_CLIPBOARD_PNG = pngFormat;
+  if (png !== undefined) {
+    env.OTAK_PASTE_E2E_CLIPBOARD_PNG = Buffer.isBuffer(png) ? png.toString('base64') : png;
   }
 
   const result = childProcess.spawnSync(
@@ -331,7 +395,7 @@ try {
   );
 
   assert.strictEqual(result.status, 0, `failed to set clipboard image:\n${result.stderr}`);
-  return pngFormat ? Buffer.from(result.stdout.trim(), 'base64') : undefined;
+  return png === 'encoded' ? Buffer.from(result.stdout.trim(), 'base64') : undefined;
 }
 
 module.exports = {
