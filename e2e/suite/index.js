@@ -5,6 +5,7 @@ const path = require('node:path');
 const vscode = require('vscode');
 
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+const PNG_IEND_CHUNK = Buffer.from('0000000049454e44ae426082', 'hex');
 const WAIT_TIMEOUT_MS = 5000;
 const WAIT_INTERVAL_MS = 50;
 const OTAK_PASTE_EDIT_KIND = 'markdown.image.otakPaste';
@@ -23,6 +24,7 @@ async function run() {
     await pasteAsStillOffersImageFromMixedClipboard(workspacePath);
     await imageClipboardSavesAssetAndUndoRemovesIt(workspacePath, powerShell);
     await pngClipboardFormatIsSavedAsIs(workspacePath, powerShell);
+    await brokenPngClipboardFormatFallsBackToBitmap(workspacePath, powerShell);
   } finally {
     powerShell.restore();
   }
@@ -160,41 +162,65 @@ async function imageClipboardSavesAssetAndUndoRemovesIt(workspacePath, powerShel
 }
 
 async function pngClipboardFormatIsSavedAsIs(workspacePath, powerShell) {
-  const markdownPath = path.join(workspacePath, 'png-format.md');
-  fs.writeFileSync(markdownPath, '# PNG\n\n', 'utf8');
-
-  // `none` keeps the optimizer out, so the saved file shows exactly what was read.
-  const configuration = vscode.workspace.getConfiguration('otakPaste');
-  await configuration.update('pngOptimization', 'none', vscode.ConfigurationTarget.Workspace);
-  try {
-    const sourcePng = setClipboardImage({ pngFormat: true });
+  await withoutPngOptimization(async () => {
+    const sourcePng = setClipboardImage({ pngFormat: 'complete' });
     // IHDR color type 6 is RGBA: the source carries the transparency that must survive.
     assert.strictEqual(sourcePng[25], 6, 'the clipboard PNG should have an alpha channel');
 
-    const document = await openMarkdownAtEnd(vscode.Uri.file(markdownPath));
-    const spawnsBefore = powerShell.spawns.length;
-
-    await vscode.commands.executeCommand('otakPaste.pasteImage');
-
-    const imageReads = powerShell.spawns.slice(spawnsBefore);
-    assert.strictEqual(imageReads.length, 1, 'a PNG paste should read the clipboard with one PowerShell process');
-    assert.strictEqual(await imageReads[0].exitCode, 0, 'the clipboard image reader should exit successfully');
-
-    const match = document.getText().match(/assets\/([0-9a-f]{16}\.png)/);
-    assert.ok(match, `expected markdown image link, got:\n${document.getText()}`);
-    const imagePath = path.join(workspacePath, 'assets', match[1]);
-    await waitFor(() => fs.existsSync(imagePath), () => `expected pasted PNG at ${imagePath}`);
-    assert.ok(
-      fs.readFileSync(imagePath).equals(sourcePng),
-      'the PNG clipboard format should be saved byte-for-byte, transparency included'
-    );
+    const { imagePath, savedPng } = await pasteImageIntoNewMarkdown(workspacePath, powerShell, 'png-format.md');
+    assert.ok(savedPng.equals(sourcePng), 'the PNG clipboard format should be saved byte-for-byte, transparency included');
     console.log(`E2E PNG clipboard format saved as-is: ${imagePath}`);
+  });
+}
 
-    await vscode.commands.executeCommand('workbench.action.revertAndCloseActiveEditor');
-    fs.rmSync(imagePath);
+async function brokenPngClipboardFormatFallsBackToBitmap(workspacePath, powerShell) {
+  await withoutPngOptimization(async () => {
+    setClipboardImage({ pngFormat: 'withoutIend' });
+
+    const { imagePath, savedPng } = await pasteImageIntoNewMarkdown(workspacePath, powerShell, 'broken-png-format.md');
+    assert.ok(
+      savedPng.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE) &&
+        savedPng.subarray(-PNG_IEND_CHUNK.length).equals(PNG_IEND_CHUNK),
+      'a PNG clipboard format without IEND should be skipped for the bitmap, saved as a complete PNG'
+    );
+    console.log(`E2E broken PNG clipboard format fell back to bitmap: ${imagePath}`);
+  });
+}
+
+// `none` keeps the optimizer out, so a saved file shows exactly what the reader returned.
+async function withoutPngOptimization(body) {
+  const configuration = vscode.workspace.getConfiguration('otakPaste');
+  await configuration.update('pngOptimization', 'none', vscode.ConfigurationTarget.Workspace);
+  try {
+    await body();
   } finally {
     await configuration.update('pngOptimization', undefined, vscode.ConfigurationTarget.Workspace);
   }
+}
+
+// Pastes the clipboard image into a new Markdown file, checks that one PowerShell process
+// read it, and returns the saved PNG; the editor is closed and the asset removed afterwards.
+async function pasteImageIntoNewMarkdown(workspacePath, powerShell, markdownName) {
+  const markdownPath = path.join(workspacePath, markdownName);
+  fs.writeFileSync(markdownPath, '# PNG\n\n', 'utf8');
+  const document = await openMarkdownAtEnd(vscode.Uri.file(markdownPath));
+  const spawnsBefore = powerShell.spawns.length;
+
+  await vscode.commands.executeCommand('otakPaste.pasteImage');
+
+  const imageReads = powerShell.spawns.slice(spawnsBefore);
+  assert.strictEqual(imageReads.length, 1, 'an image paste should read the clipboard with one PowerShell process');
+  assert.strictEqual(await imageReads[0].exitCode, 0, 'the clipboard image reader should exit successfully');
+
+  const match = document.getText().match(/assets\/([0-9a-f]{16}\.png)/);
+  assert.ok(match, `expected markdown image link, got:\n${document.getText()}`);
+  const imagePath = path.join(workspacePath, 'assets', match[1]);
+  await waitFor(() => fs.existsSync(imagePath), () => `expected pasted PNG at ${imagePath}`);
+  const savedPng = fs.readFileSync(imagePath);
+
+  await vscode.commands.executeCommand('workbench.action.revertAndCloseActiveEditor');
+  fs.rmSync(imagePath);
+  return { imagePath, savedPng };
 }
 
 async function openMarkdownAtEnd(uri) {
@@ -256,8 +282,9 @@ function listAssets(workspacePath) {
 
 // Puts an 8x8 bitmap on the clipboard. `text` adds text (a mixed clipboard);
 // `pngFormat` makes the image half-transparent, also publishes it in the
-// registered PNG format next to the bitmap, and returns those PNG bytes.
-function setClipboardImage({ text, pngFormat = false } = {}) {
+// registered PNG format next to the bitmap, and returns those PNG bytes:
+// 'complete' publishes the whole PNG, 'withoutIend' drops its final IEND chunk.
+function setClipboardImage({ text, pngFormat } = {}) {
   const script = `
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Windows.Forms
@@ -273,6 +300,9 @@ try {
         $encoded = New-Object System.IO.MemoryStream
         $bitmap.Save($encoded, [System.Drawing.Imaging.ImageFormat]::Png)
         $pngBytes = $encoded.ToArray()
+        if ($env:OTAK_PASTE_E2E_CLIPBOARD_PNG -eq 'withoutIend') {
+            $pngBytes = [byte[]]$pngBytes[0..($pngBytes.Length - 13)]
+        }
         $data.SetData('PNG', (New-Object System.IO.MemoryStream (,$pngBytes)))
         [Console]::Out.Write([Convert]::ToBase64String($pngBytes))
     }
@@ -290,8 +320,8 @@ try {
   if (text !== undefined) {
     env.OTAK_PASTE_E2E_CLIPBOARD_TEXT = text;
   }
-  if (pngFormat) {
-    env.OTAK_PASTE_E2E_CLIPBOARD_PNG = '1';
+  if (pngFormat !== undefined) {
+    env.OTAK_PASTE_E2E_CLIPBOARD_PNG = pngFormat;
   }
 
   const result = childProcess.spawnSync(

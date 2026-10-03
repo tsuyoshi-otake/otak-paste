@@ -8,7 +8,7 @@
 - Pasting into untitled Markdown, notebook Markdown cells, and other non-`file:` Markdown is handed back to VS Code's normal paste instead of being dropped with a warning, so text pastes work there again; the paste provider now only registers for `file:` and untitled Markdown. (#5)
 - A clipboard holding both text and an image, such as cells copied from Excel, now pastes the text instead of an image link; the image is still available through **Paste As...** → **Paste image to assets**. (#7)
 - **Paste As...** → **Paste image to assets** now inserts the image link and writes the PNG; the edit was previously completed only in `resolveDocumentPasteEdit`, which Paste As does not call, so nothing was inserted. (#7)
-- On Windows, `Ctrl+V` now saves the clipboard's own `PNG` data when the source app provides it, so transparency is kept and `otakPaste.pngOptimization: none` writes those bytes unchanged; previously every image was read back through a bitmap and re-encoded without transparency. Bitmap-only clipboards are still encoded to PNG. (#9)
+- On Windows, `Ctrl+V` now saves the clipboard's own `PNG` data when the source app provides it, so transparency is kept and `otakPaste.pngOptimization: none` writes those bytes unchanged; previously every image was read back through a bitmap and re-encoded without transparency. That data is read as raw bytes and used only when it is a complete PNG with intact chunk checksums; otherwise, and on bitmap-only clipboards, the bitmap is still encoded to PNG. (#9)
 
 ## [0.3.0] - 2026-06-28
 
