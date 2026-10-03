@@ -7,6 +7,9 @@ const vscode = require('vscode');
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 const WAIT_TIMEOUT_MS = 5000;
 const WAIT_INTERVAL_MS = 50;
+const OTAK_PASTE_EDIT_KIND = 'markdown.image.otakPaste';
+// Excel puts cell text and a rendered bitmap on the clipboard together.
+const MIXED_CLIPBOARD_TEXT = 'cell A\tcell B';
 
 async function run() {
   const workspacePath = process.env.OTAK_PASTE_E2E_WORKSPACE;
@@ -16,6 +19,8 @@ async function run() {
   try {
     await textClipboardUsesDefaultPasteWithoutPowerShell(workspacePath, powerShell);
     await untitledMarkdownIsHandedBackToVsCode(powerShell);
+    await mixedClipboardPastesTextWithoutImageAsset(workspacePath, powerShell);
+    await pasteAsStillOffersImageFromMixedClipboard(workspacePath);
     await imageClipboardSavesAssetAndUndoRemovesIt(workspacePath, powerShell);
   } finally {
     powerShell.restore();
@@ -71,6 +76,49 @@ async function untitledMarkdownIsHandedBackToVsCode(powerShell) {
     probe.dispose();
     await vscode.commands.executeCommand('workbench.action.revertAndCloseActiveEditor');
   }
+}
+
+async function mixedClipboardPastesTextWithoutImageAsset(workspacePath, powerShell) {
+  const markdownPath = path.join(workspacePath, 'mixed.md');
+  fs.writeFileSync(markdownPath, '# Mixed\n\n', 'utf8');
+  setClipboardImage(MIXED_CLIPBOARD_TEXT);
+
+  const document = await openMarkdownAtEnd(vscode.Uri.file(markdownPath));
+  const spawnsBefore = powerShell.spawns.length;
+  const assetsBefore = listAssets(workspacePath);
+
+  await vscode.commands.executeCommand('otakPaste.pasteImage');
+
+  await waitFor(() => document.getText() !== '# Mixed\n\n', () => 'the mixed-clipboard paste inserted nothing');
+  assert.strictEqual(
+    document.getText(),
+    `# Mixed\n\n${MIXED_CLIPBOARD_TEXT}`,
+    'a mixed-clipboard paste should insert the clipboard text, not an image link'
+  );
+  assert.strictEqual(powerShell.spawns.length - spawnsBefore, 0, 'a mixed-clipboard paste must not start PowerShell');
+  assert.deepStrictEqual(listAssets(workspacePath), assetsBefore, 'a mixed-clipboard paste must not write an image asset');
+  console.log('E2E mixed paste: text inserted, no image asset');
+
+  await vscode.commands.executeCommand('workbench.action.revertAndCloseActiveEditor');
+}
+
+async function pasteAsStillOffersImageFromMixedClipboard(workspacePath) {
+  const markdownPath = path.join(workspacePath, 'paste-as.md');
+  fs.writeFileSync(markdownPath, '# Paste As\n\n', 'utf8');
+  setClipboardImage(MIXED_CLIPBOARD_TEXT);
+
+  const document = await openMarkdownAtEnd(vscode.Uri.file(markdownPath));
+
+  await vscode.commands.executeCommand('editor.action.pasteAs', { kind: OTAK_PASTE_EDIT_KIND });
+
+  const linkPattern = /assets\/([0-9a-f]{16}\.png)/;
+  await waitFor(() => linkPattern.test(document.getText()), () => `expected Paste As to insert an image link, got:\n${document.getText()}`);
+  const imagePath = path.join(workspacePath, 'assets', document.getText().match(linkPattern)[1]);
+  await waitFor(() => fs.existsSync(imagePath), () => `expected Paste As to write ${imagePath}`);
+  console.log(`E2E paste as image: saved ${imagePath}`);
+
+  await vscode.commands.executeCommand('workbench.action.revertAndCloseActiveEditor');
+  fs.rmSync(imagePath);
 }
 
 async function imageClipboardSavesAssetAndUndoRemovesIt(workspacePath, powerShell) {
@@ -162,7 +210,13 @@ async function waitFor(condition, describeFailure) {
   }
 }
 
-function setClipboardImage() {
+function listAssets(workspacePath) {
+  const assetsPath = path.join(workspacePath, 'assets');
+  return fs.existsSync(assetsPath) ? fs.readdirSync(assetsPath).sort() : [];
+}
+
+// Puts an 8x8 bitmap on the clipboard, plus text when given (a mixed clipboard).
+function setClipboardImage(text) {
   const script = `
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Windows.Forms
@@ -171,7 +225,12 @@ $bitmap = New-Object System.Drawing.Bitmap 8, 8
 $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
 try {
     $graphics.Clear([System.Drawing.Color]::FromArgb(255, 32, 120, 220))
-    [System.Windows.Forms.Clipboard]::SetImage($bitmap)
+    $data = New-Object System.Windows.Forms.DataObject
+    $data.SetImage($bitmap)
+    if ($env:OTAK_PASTE_E2E_CLIPBOARD_TEXT) {
+        $data.SetText($env:OTAK_PASTE_E2E_CLIPBOARD_TEXT)
+    }
+    [System.Windows.Forms.Clipboard]::SetDataObject($data, $true)
 } finally {
     $graphics.Dispose()
     $bitmap.Dispose()
@@ -181,7 +240,10 @@ try {
   const result = childProcess.spawnSync(
     'powershell.exe',
     ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-STA', '-Command', script],
-    { encoding: 'utf8' }
+    {
+      encoding: 'utf8',
+      env: text === undefined ? process.env : { ...process.env, OTAK_PASTE_E2E_CLIPBOARD_TEXT: text },
+    }
   );
 
   assert.strictEqual(result.status, 0, `failed to set clipboard image:\n${result.stderr}`);
