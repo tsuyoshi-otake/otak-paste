@@ -136,7 +136,7 @@ ext install odangoo.otak-paste
 ```bash
 npm install
 npm run package
-code --install-extension otak-paste-0.3.0.vsix
+code --install-extension otak-paste-0.3.1.vsix
 ```
 
 Reload VS Code afterwards if the Markdown editor was already open.

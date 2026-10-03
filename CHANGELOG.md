@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased]
+## [0.3.1] - 2026-10-03
 
 ### Fixed
 - `Ctrl+V` / `Cmd+V` with text on the clipboard now runs VS Code's normal paste immediately instead of first starting PowerShell to look for an image, so text pastes no longer lag or reorder keystrokes typed meanwhile. (#5)
