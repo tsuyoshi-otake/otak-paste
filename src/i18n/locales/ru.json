@@ -9,6 +9,5 @@
   "error.readPngData": "Не удалось прочитать PNG-данные из буфера обмена.",
   "extension.description": "Вставляет изображения Markdown в assets с автоматической PNG-оптимизацией без потерь для меньших скриншотов.",
   "paste.title": "Вставить изображение в assets",
-  "warning.nonFileMarkdown": "otak-paste может сохранять изображения только для локальных Markdown-файлов.",
   "warning.unsavedMarkdown": "Сохраните этот Markdown-файл перед вставкой изображения."
 }

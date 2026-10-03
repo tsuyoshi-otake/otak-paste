@@ -9,6 +9,5 @@
   "error.readPngData": "Panodan PNG verileri okunamadı.",
   "extension.description": "Markdown görüntülerini assets içine yapıştırır ve daha küçük ekran görüntüleri için PNG'leri otomatik kayıpsız iyileştirir.",
   "paste.title": "Görüntüyü assets'e yapıştır",
-  "warning.nonFileMarkdown": "otak-paste yalnızca yerel Markdown dosyaları için görüntü kaydedebilir.",
   "warning.unsavedMarkdown": "Görüntü yapıştırmadan önce bu Markdown dosyasını kaydedin."
 }

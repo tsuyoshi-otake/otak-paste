@@ -9,6 +9,5 @@
   "error.readPngData": "क्लिपबोर्ड से PNG डेटा नहीं पढ़ा जा सका।",
   "extension.description": "Markdown छवियों को assets में पेस्ट करें और छोटे स्क्रीनशॉट के लिए स्वचालित दोषरहित PNG अनुकूलन करें।",
   "paste.title": "छवि को assets में पेस्ट करें",
-  "warning.nonFileMarkdown": "otak-paste केवल स्थानीय Markdown फ़ाइलों के लिए छवियां सहेज सकता है।",
   "warning.unsavedMarkdown": "छवि पेस्ट करने से पहले इस Markdown फ़ाइल को सहेजें।"
 }

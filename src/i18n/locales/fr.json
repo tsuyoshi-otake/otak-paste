@@ -9,6 +9,5 @@
   "error.readPngData": "Impossible de lire les données PNG depuis le presse-papiers.",
   "extension.description": "Collez des images Markdown dans assets avec optimisation PNG sans perte automatique pour réduire les captures.",
   "paste.title": "Coller l'image dans assets",
-  "warning.nonFileMarkdown": "otak-paste ne peut enregistrer des images que pour des fichiers Markdown locaux.",
   "warning.unsavedMarkdown": "Enregistrez ce fichier Markdown avant de coller une image."
 }
