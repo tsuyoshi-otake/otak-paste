@@ -9,6 +9,5 @@
   "error.readPngData": "No se pudieron leer los datos PNG del portapapeles.",
   "extension.description": "Pega imágenes de Markdown en assets con optimización PNG sin pérdida automática para capturas más pequeñas.",
   "paste.title": "Pegar imagen en assets",
-  "warning.nonFileMarkdown": "otak-paste solo puede guardar imágenes para archivos Markdown locales.",
   "warning.unsavedMarkdown": "Guarda este archivo Markdown antes de pegar una imagen."
 }

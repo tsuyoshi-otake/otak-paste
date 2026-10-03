@@ -9,6 +9,5 @@
   "error.readPngData": "クリップボードからPNGデータを読み取れませんでした。",
   "extension.description": "Markdownに貼り付けた画像を自動でロスレスPNG最適化し、軽量なスクリーンショットとしてassetsに保存します。",
   "paste.title": "画像をassetsに貼り付け",
-  "warning.nonFileMarkdown": "otak-pasteはローカルMarkdownファイルにのみ画像を保存できます。",
   "warning.unsavedMarkdown": "画像を貼り付ける前に、このMarkdownファイルを保存してください。"
 }

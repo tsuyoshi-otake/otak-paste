@@ -3,10 +3,18 @@ import { I18nManager } from './i18n/I18nManager';
 import { buildMarkdownImageSnippet, UniqueFileNameError } from './pathing';
 import {
     ensurePastedPngDirectory,
+    LOCAL_MARKDOWN_DOCUMENT,
     preparePastedPngAsset
 } from './pastedPngAsset';
 
 const PNG_MIME_TYPE = 'image/png';
+
+// Untitled Markdown is included only to tell the user to save the file first;
+// every other scheme is left to VS Code's own paste providers.
+export const OTAK_PASTE_PROVIDER_SELECTOR: vscode.DocumentSelector = [
+    LOCAL_MARKDOWN_DOCUMENT,
+    { language: 'markdown', scheme: 'untitled' }
+];
 
 export function getOtakPasteEditKind(): vscode.DocumentDropOrPasteEditKind {
     return vscode.DocumentDropOrPasteEditKind.Empty.append('markdown', 'image', 'otakPaste');
@@ -38,11 +46,6 @@ export class OtakPasteProvider implements vscode.DocumentPasteEditProvider<OtakP
 
         if (document.isUntitled) {
             void vscode.window.showWarningMessage(this.i18n.t('warning.unsavedMarkdown'));
-            return [];
-        }
-
-        if (document.uri.scheme !== 'file') {
-            void vscode.window.showWarningMessage(this.i18n.t('warning.nonFileMarkdown'));
             return [];
         }
 

@@ -7,6 +7,9 @@ import {
 } from './pathing';
 import { optimizePngBytes } from './pngOptimizer';
 
+// The only documents otak-paste writes a sibling assets/ PNG for.
+export const LOCAL_MARKDOWN_DOCUMENT: vscode.DocumentFilter = { language: 'markdown', scheme: 'file' };
+
 export interface PastedPngAsset {
     readonly assetDirectory: vscode.Uri;
     readonly imageUri: vscode.Uri;

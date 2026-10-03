@@ -1,5 +1,12 @@
 # Change Log
 
+## [Unreleased]
+
+### Fixed
+- `Ctrl+V` / `Cmd+V` with text on the clipboard now runs VS Code's normal paste immediately instead of first starting PowerShell to look for an image, so text pastes no longer lag or reorder keystrokes typed meanwhile. (#5)
+- The Windows clipboard image reader now runs as a plain `-Command` script without `-ExecutionPolicy Bypass` or `-EncodedCommand`. (#5)
+- Pasting into untitled Markdown, notebook Markdown cells, and other non-`file:` Markdown is handed back to VS Code's normal paste instead of being dropped with a warning, so text pastes work there again; the paste provider now only registers for `file:` and untitled Markdown. (#5)
+
 ## [0.3.0] - 2026-06-28
 
 ### Changed

@@ -37,8 +37,6 @@ export async function readPngFromClipboard(): Promise<Uint8Array | undefined> {
 }
 
 function readWindowsPngFromClipboard(): Promise<Uint8Array | undefined> {
-    const encodedCommand = Buffer.from(WINDOWS_READ_PNG_SCRIPT, 'utf16le').toString('base64');
-
     return new Promise(resolve => {
         let settled = false;
         let timedOut = false;
@@ -47,14 +45,14 @@ function readWindowsPngFromClipboard(): Promise<Uint8Array | undefined> {
 
         const child = spawn(
             'powershell.exe',
+            // A plain -Command script stays auditable in process listings; execution
+            // policy only governs script files, so no policy override flag is needed.
             [
                 '-NoProfile',
                 '-NonInteractive',
-                '-ExecutionPolicy',
-                'Bypass',
                 '-STA',
-                '-EncodedCommand',
-                encodedCommand
+                '-Command',
+                WINDOWS_READ_PNG_SCRIPT
             ],
             {
                 stdio: ['ignore', 'pipe', 'ignore'],

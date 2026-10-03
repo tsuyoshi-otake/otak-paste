@@ -4,6 +4,7 @@ import { I18nManager } from './i18n/I18nManager';
 import { buildMarkdownImageSnippet, UniqueFileNameError } from './pathing';
 import {
     ensurePastedPngDirectory,
+    LOCAL_MARKDOWN_DOCUMENT,
     preparePastedPngAsset
 } from './pastedPngAsset';
 
@@ -11,7 +12,14 @@ const DEFAULT_PASTE_COMMAND = 'editor.action.clipboardPasteAction';
 
 export async function pasteImageFromClipboard(i18n: I18nManager): Promise<void> {
     const editor = vscode.window.activeTextEditor;
-    if (!editor || editor.document.languageId !== 'markdown') {
+    // Untitled, notebook-cell and other non-file Markdown is VS Code's paste to handle.
+    if (!editor || vscode.languages.match(LOCAL_MARKDOWN_DOCUMENT, editor.document) === 0) {
+        await runDefaultPaste();
+        return;
+    }
+
+    // Text pastes must not wait for the clipboard image probe.
+    if (await clipboardHasText()) {
         await runDefaultPaste();
         return;
     }
@@ -19,10 +27,6 @@ export async function pasteImageFromClipboard(i18n: I18nManager): Promise<void> 
     const pngBytes = await readPngFromClipboard();
     if (!pngBytes) {
         await runDefaultPaste();
-        return;
-    }
-
-    if (!canPasteIntoDocument(editor.document, i18n)) {
         return;
     }
 
@@ -56,16 +60,11 @@ async function runDefaultPaste(): Promise<void> {
     await vscode.commands.executeCommand(DEFAULT_PASTE_COMMAND);
 }
 
-function canPasteIntoDocument(document: vscode.TextDocument, i18n: I18nManager): boolean {
-    if (document.isUntitled) {
-        void vscode.window.showWarningMessage(i18n.t('warning.unsavedMarkdown'));
+async function clipboardHasText(): Promise<boolean> {
+    try {
+        return (await vscode.env.clipboard.readText()).length > 0;
+    } catch {
+        // Let the image probe decide; it falls back to the default paste itself.
         return false;
     }
-
-    if (document.uri.scheme !== 'file') {
-        void vscode.window.showWarningMessage(i18n.t('warning.nonFileMarkdown'));
-        return false;
-    }
-
-    return true;
 }

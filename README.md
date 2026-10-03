@@ -43,7 +43,7 @@ The `image` alt text is **pre-selected**, so you can type a real description rig
 
 ## Capabilities
 
-- **One-keystroke flow**: `Ctrl+V` / `Cmd+V` in a Markdown editor runs otak-paste first for clipboard PNGs, then falls back to VS Code's normal paste for text and other clipboard content.
+- **One-keystroke flow**: `Ctrl+V` / `Cmd+V` in a saved Markdown file runs otak-paste for clipboard PNGs; text clipboards go straight to VS Code's normal paste without probing for an image first.
 - **Local-first assets**: images are written to an `assets/` folder beside the current file, never scattered across the workspace.
 - **Smaller Markdown repositories**: pasted screenshots are losslessly recompressed before saving, which can reduce asset size and future Git diffs without changing the visible image.
 - **Unique filenames**: each file receives a random 16-character hex name such as `4f8c9a01d2b3e4f5.png`.
@@ -88,8 +88,9 @@ PNG optimization is enabled by default because documentation screenshots often c
 | otak-paste handles | Handed back to VS Code's default |
 | --- | --- |
 | A **saved, local** `.md` file is active | Untitled, virtual, or remote-only documents |
-| The clipboard holds **PNG image data** | Non-PNG data such as JPEG, GIF, or WebP |
-| Direct paste into a Markdown editor | Copied image **files** rather than image data |
+| The clipboard holds **PNG image data** | Clipboard **text**, and non-PNG data such as JPEG, GIF, or WebP |
+| Direct paste into a Markdown editor | Notebook Markdown cells |
+| | Copied image **files** rather than image data |
 
 > Only local `file:` Markdown documents are supported in v1.
 

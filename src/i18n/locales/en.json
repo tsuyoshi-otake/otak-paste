@@ -9,6 +9,5 @@
   "error.readPngData": "Couldn't read PNG data from the clipboard.",
   "extension.description": "Paste Markdown images into assets with automatic lossless PNG optimization to keep screenshots smaller.",
   "paste.title": "Paste image to assets",
-  "warning.nonFileMarkdown": "otak-paste can only save images for local Markdown files.",
   "warning.unsavedMarkdown": "Save this Markdown file before pasting an image."
 }
