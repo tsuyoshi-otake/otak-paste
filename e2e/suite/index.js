@@ -22,6 +22,7 @@ async function run() {
     await mixedClipboardPastesTextWithoutImageAsset(workspacePath, powerShell);
     await pasteAsStillOffersImageFromMixedClipboard(workspacePath);
     await imageClipboardSavesAssetAndUndoRemovesIt(workspacePath, powerShell);
+    await pngClipboardFormatIsSavedAsIs(workspacePath, powerShell);
   } finally {
     powerShell.restore();
   }
@@ -81,7 +82,7 @@ async function untitledMarkdownIsHandedBackToVsCode(powerShell) {
 async function mixedClipboardPastesTextWithoutImageAsset(workspacePath, powerShell) {
   const markdownPath = path.join(workspacePath, 'mixed.md');
   fs.writeFileSync(markdownPath, '# Mixed\n\n', 'utf8');
-  setClipboardImage(MIXED_CLIPBOARD_TEXT);
+  setClipboardImage({ text: MIXED_CLIPBOARD_TEXT });
 
   const document = await openMarkdownAtEnd(vscode.Uri.file(markdownPath));
   const spawnsBefore = powerShell.spawns.length;
@@ -105,7 +106,7 @@ async function mixedClipboardPastesTextWithoutImageAsset(workspacePath, powerShe
 async function pasteAsStillOffersImageFromMixedClipboard(workspacePath) {
   const markdownPath = path.join(workspacePath, 'paste-as.md');
   fs.writeFileSync(markdownPath, '# Paste As\n\n', 'utf8');
-  setClipboardImage(MIXED_CLIPBOARD_TEXT);
+  setClipboardImage({ text: MIXED_CLIPBOARD_TEXT });
 
   const document = await openMarkdownAtEnd(vscode.Uri.file(markdownPath));
 
@@ -156,6 +157,44 @@ async function imageClipboardSavesAssetAndUndoRemovesIt(workspacePath, powerShel
   assert.strictEqual(document.getText(), '# E2E\n\n', 'undo should remove the inserted markdown image link');
   assert.strictEqual(fs.existsSync(imagePath), false, 'undo should remove the pasted PNG asset');
   console.log(`E2E undo removed image: ${imagePath}`);
+}
+
+async function pngClipboardFormatIsSavedAsIs(workspacePath, powerShell) {
+  const markdownPath = path.join(workspacePath, 'png-format.md');
+  fs.writeFileSync(markdownPath, '# PNG\n\n', 'utf8');
+
+  // `none` keeps the optimizer out, so the saved file shows exactly what was read.
+  const configuration = vscode.workspace.getConfiguration('otakPaste');
+  await configuration.update('pngOptimization', 'none', vscode.ConfigurationTarget.Workspace);
+  try {
+    const sourcePng = setClipboardImage({ pngFormat: true });
+    // IHDR color type 6 is RGBA: the source carries the transparency that must survive.
+    assert.strictEqual(sourcePng[25], 6, 'the clipboard PNG should have an alpha channel');
+
+    const document = await openMarkdownAtEnd(vscode.Uri.file(markdownPath));
+    const spawnsBefore = powerShell.spawns.length;
+
+    await vscode.commands.executeCommand('otakPaste.pasteImage');
+
+    const imageReads = powerShell.spawns.slice(spawnsBefore);
+    assert.strictEqual(imageReads.length, 1, 'a PNG paste should read the clipboard with one PowerShell process');
+    assert.strictEqual(await imageReads[0].exitCode, 0, 'the clipboard image reader should exit successfully');
+
+    const match = document.getText().match(/assets\/([0-9a-f]{16}\.png)/);
+    assert.ok(match, `expected markdown image link, got:\n${document.getText()}`);
+    const imagePath = path.join(workspacePath, 'assets', match[1]);
+    await waitFor(() => fs.existsSync(imagePath), () => `expected pasted PNG at ${imagePath}`);
+    assert.ok(
+      fs.readFileSync(imagePath).equals(sourcePng),
+      'the PNG clipboard format should be saved byte-for-byte, transparency included'
+    );
+    console.log(`E2E PNG clipboard format saved as-is: ${imagePath}`);
+
+    await vscode.commands.executeCommand('workbench.action.revertAndCloseActiveEditor');
+    fs.rmSync(imagePath);
+  } finally {
+    await configuration.update('pngOptimization', undefined, vscode.ConfigurationTarget.Workspace);
+  }
 }
 
 async function openMarkdownAtEnd(uri) {
@@ -215,8 +254,10 @@ function listAssets(workspacePath) {
   return fs.existsSync(assetsPath) ? fs.readdirSync(assetsPath).sort() : [];
 }
 
-// Puts an 8x8 bitmap on the clipboard, plus text when given (a mixed clipboard).
-function setClipboardImage(text) {
+// Puts an 8x8 bitmap on the clipboard. `text` adds text (a mixed clipboard);
+// `pngFormat` makes the image half-transparent, also publishes it in the
+// registered PNG format next to the bitmap, and returns those PNG bytes.
+function setClipboardImage({ text, pngFormat = false } = {}) {
   const script = `
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Windows.Forms
@@ -224,9 +265,17 @@ Add-Type -AssemblyName System.Drawing
 $bitmap = New-Object System.Drawing.Bitmap 8, 8
 $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
 try {
-    $graphics.Clear([System.Drawing.Color]::FromArgb(255, 32, 120, 220))
+    $alpha = if ($env:OTAK_PASTE_E2E_CLIPBOARD_PNG) { 128 } else { 255 }
+    $graphics.Clear([System.Drawing.Color]::FromArgb($alpha, 32, 120, 220))
     $data = New-Object System.Windows.Forms.DataObject
     $data.SetImage($bitmap)
+    if ($env:OTAK_PASTE_E2E_CLIPBOARD_PNG) {
+        $encoded = New-Object System.IO.MemoryStream
+        $bitmap.Save($encoded, [System.Drawing.Imaging.ImageFormat]::Png)
+        $pngBytes = $encoded.ToArray()
+        $data.SetData('PNG', (New-Object System.IO.MemoryStream (,$pngBytes)))
+        [Console]::Out.Write([Convert]::ToBase64String($pngBytes))
+    }
     if ($env:OTAK_PASTE_E2E_CLIPBOARD_TEXT) {
         $data.SetText($env:OTAK_PASTE_E2E_CLIPBOARD_TEXT)
     }
@@ -237,16 +286,22 @@ try {
 }
 `;
 
+  const env = { ...process.env };
+  if (text !== undefined) {
+    env.OTAK_PASTE_E2E_CLIPBOARD_TEXT = text;
+  }
+  if (pngFormat) {
+    env.OTAK_PASTE_E2E_CLIPBOARD_PNG = '1';
+  }
+
   const result = childProcess.spawnSync(
     'powershell.exe',
     ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-STA', '-Command', script],
-    {
-      encoding: 'utf8',
-      env: text === undefined ? process.env : { ...process.env, OTAK_PASTE_E2E_CLIPBOARD_TEXT: text },
-    }
+    { encoding: 'utf8', env }
   );
 
   assert.strictEqual(result.status, 0, `failed to set clipboard image:\n${result.stderr}`);
+  return pngFormat ? Buffer.from(result.stdout.trim(), 'base64') : undefined;
 }
 
 module.exports = {

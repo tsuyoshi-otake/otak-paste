@@ -8,6 +8,40 @@ $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
+function Test-PngSignature([byte[]] $bytes) {
+    $signature = [byte[]](0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A)
+    if ($bytes.Length -le $signature.Length) {
+        return $false
+    }
+    for ($i = 0; $i -lt $signature.Length; $i++) {
+        if ($bytes[$i] -ne $signature[$i]) {
+            return $false
+        }
+    }
+    return $true
+}
+
+# An app can publish the original image under the registered PNG format next to the bitmap.
+# GetImage() goes through the bitmap, which drops transparency and re-encodes, so that PNG
+# is used as-is when valid.
+if ([System.Windows.Forms.Clipboard]::ContainsData('PNG')) {
+    $png = [System.Windows.Forms.Clipboard]::GetData('PNG')
+    if ($png -is [System.IO.Stream]) {
+        $buffer = New-Object System.IO.MemoryStream
+        try {
+            $png.CopyTo($buffer)
+            $bytes = $buffer.ToArray()
+        } finally {
+            $buffer.Dispose()
+            $png.Dispose()
+        }
+        if (Test-PngSignature $bytes) {
+            [Console]::OpenStandardOutput().Write($bytes, 0, $bytes.Length)
+            exit 0
+        }
+    }
+}
+
 if (-not [System.Windows.Forms.Clipboard]::ContainsImage()) {
     exit ${WINDOWS_NO_IMAGE_EXIT_CODE}
 }
