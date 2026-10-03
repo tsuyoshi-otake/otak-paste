@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased]
+## [0.3.1] - 2026-10-03
 
 ### Fixed
 - `Ctrl+V` / `Cmd+V` with text on the clipboard now runs VS Code's normal paste immediately instead of first starting PowerShell to look for an image, so text pastes no longer lag or reorder keystrokes typed meanwhile. (#5)
@@ -8,6 +8,8 @@
 - Pasting into untitled Markdown, notebook Markdown cells, and other non-`file:` Markdown is handed back to VS Code's normal paste instead of being dropped with a warning, so text pastes work there again; the paste provider now only registers for `file:` and untitled Markdown. (#5)
 - A clipboard holding both text and an image, such as cells copied from Excel, now pastes the text instead of an image link; the image is still available through **Paste As...** → **Paste image to assets**. (#7)
 - **Paste As...** → **Paste image to assets** now inserts the image link and writes the PNG; the edit was previously completed only in `resolveDocumentPasteEdit`, which Paste As does not call, so nothing was inserted. (#7)
+- On Windows, `Ctrl+V` now saves the clipboard's own `PNG` data when the source app provides it, so transparency is kept and `otakPaste.pngOptimization: none` writes those bytes unchanged; previously every image was read back through a bitmap and re-encoded without transparency. That data is read as raw bytes and used only when it is a complete PNG with a valid header, image data, and intact chunk checksums; otherwise, and on bitmap-only clipboards, the bitmap is still encoded to PNG. (#9)
+- Lossless PNG optimization now decompresses image data only up to the size the PNG header declares, and skips images whose decoded data would exceed 128 MiB, so a small PNG that expands to a huge buffer can no longer exhaust the extension host's memory; such images are saved without recompression. (#9)
 
 ## [0.3.0] - 2026-06-28
 

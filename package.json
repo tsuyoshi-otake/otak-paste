@@ -13,7 +13,7 @@
     "url": "https://github.com/tsuyoshi-otake/otak-paste/issues"
   },
   "homepage": "https://github.com/tsuyoshi-otake/otak-paste#readme",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "files": [
     "out/clipboardImageReader.js",
     "out/clipboardImageReader.js.map",
