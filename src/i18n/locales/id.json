@@ -9,6 +9,5 @@
   "error.readPngData": "Tidak dapat membaca data PNG dari papan klip.",
   "extension.description": "Tempel gambar Markdown ke assets dengan optimasi PNG lossless otomatis agar tangkapan layar lebih kecil.",
   "paste.title": "Tempel gambar ke assets",
-  "warning.nonFileMarkdown": "otak-paste hanya dapat menyimpan gambar untuk file Markdown lokal.",
   "warning.unsavedMarkdown": "Simpan file Markdown ini sebelum menempelkan gambar."
 }

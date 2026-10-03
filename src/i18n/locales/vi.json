@@ -9,6 +9,5 @@
   "error.readPngData": "Không thể đọc dữ liệu PNG từ bảng tạm.",
   "extension.description": "Dán ảnh Markdown vào assets với tối ưu PNG không mất dữ liệu tự động để ảnh chụp màn hình nhỏ hơn.",
   "paste.title": "Dán hình ảnh vào assets",
-  "warning.nonFileMarkdown": "otak-paste chỉ có thể lưu hình ảnh cho tệp Markdown cục bộ.",
   "warning.unsavedMarkdown": "Hãy lưu tệp Markdown này trước khi dán hình ảnh."
 }

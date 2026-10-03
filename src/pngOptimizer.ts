@@ -6,10 +6,20 @@ const inflateAsync = promisify(inflate);
 const deflateAsync = promisify(deflate);
 
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+const IHDR_CHUNK_TYPE = 'IHDR';
+const IHDR_LENGTH = 13;
 const IDAT_CHUNK_TYPE = 'IDAT';
 const IEND_CHUNK_TYPE = 'IEND';
 const ANIMATION_CHUNK_TYPES = new Set(['acTL', 'fcTL', 'fdAT']);
 const NON_VISUAL_METADATA_CHUNK_TYPES = new Set(['tEXt', 'zTXt', 'iTXt', 'tIME']);
+// Images whose decoded data would exceed this are saved without recompression.
+const MAX_DECODED_IMAGE_DATA_BYTES = 128 * 1024 * 1024;
+const CHANNELS_BY_COLOR_TYPE = new Map([[0, 1], [2, 3], [3, 1], [4, 2], [6, 4]]);
+// [xStart, yStart, xStep, yStep] of each pass a PNG scanline sequence is split into.
+const NON_INTERLACED_PASSES = [[0, 0, 1, 1]] as const;
+const ADAM7_PASSES = [
+    [0, 0, 8, 8], [4, 0, 8, 8], [0, 4, 4, 8], [2, 0, 4, 4], [0, 2, 2, 4], [1, 0, 2, 2], [0, 1, 1, 2]
+] as const;
 
 interface PngChunk {
     readonly type: string;
@@ -19,6 +29,7 @@ interface PngChunk {
 
 interface ParsedPng {
     readonly chunks: PngChunk[];
+    readonly header: Buffer | undefined;
     readonly idatData: Buffer[];
     readonly hasAnimation: boolean;
 }
@@ -44,7 +55,14 @@ export async function optimizePngBytesLossless(bytes: Uint8Array): Promise<Uint8
         return bytes;
     }
 
-    const imageData = await inflateAsync(Buffer.concat(parsed.idatData));
+    const decodedLength = getDecodedImageDataLength(parsed.header);
+    if (decodedLength === undefined || decodedLength > MAX_DECODED_IMAGE_DATA_BYTES) {
+        return bytes;
+    }
+
+    // IDAT data can come from any app that writes the clipboard; inflating it past the size
+    // IHDR declares rejects with a RangeError instead of expanding a compression bomb.
+    const imageData = await inflateAsync(Buffer.concat(parsed.idatData), { maxOutputLength: decodedLength });
     const recompressedImageData = await deflateAsync(imageData, { level: 9 });
     const optimized = rebuildPng(parsed, recompressedImageData);
 
@@ -60,6 +78,7 @@ function parsePng(bytes: Uint8Array): ParsedPng | undefined {
     }
 
     const chunks: PngChunk[] = [];
+    let header: Buffer | undefined;
     const idatData: Buffer[] = [];
     let hasAnimation = false;
     let offset = PNG_SIGNATURE.byteLength;
@@ -83,6 +102,10 @@ function parsePng(bytes: Uint8Array): ParsedPng | undefined {
         const data = source.subarray(dataStart, dataEnd);
         const raw = source.subarray(offset, chunkEnd);
 
+        if (type === IHDR_CHUNK_TYPE && chunks.length === 0) {
+            header = data;
+        }
+
         chunks.push({ type, data, raw });
 
         if (type === IDAT_CHUNK_TYPE) {
@@ -97,12 +120,43 @@ function parsePng(bytes: Uint8Array): ParsedPng | undefined {
 
         if (type === IEND_CHUNK_TYPE) {
             return offset === source.byteLength
-                ? { chunks, idatData, hasAnimation }
+                ? { chunks, header, idatData, hasAnimation }
                 : undefined;
         }
     }
 
     return undefined;
+}
+
+// The byte length of the filtered scanlines that the IDAT stream must inflate to, from IHDR;
+// undefined when IHDR is missing or its color type or interlace method is unknown.
+function getDecodedImageDataLength(header: Buffer | undefined): number | undefined {
+    if (!header || header.byteLength !== IHDR_LENGTH) {
+        return undefined;
+    }
+
+    const width = header.readUInt32BE(0);
+    const height = header.readUInt32BE(4);
+    const channels = CHANNELS_BY_COLOR_TYPE.get(header[9]);
+    const interlaceMethod = header[12];
+    if (width === 0 || height === 0 || channels === undefined || interlaceMethod > 1) {
+        return undefined;
+    }
+
+    const bitsPerPixel = channels * header[8];
+    let length = 0;
+
+    for (const [xStart, yStart, xStep, yStep] of interlaceMethod === 0 ? NON_INTERLACED_PASSES : ADAM7_PASSES) {
+        const passWidth = Math.ceil((width - xStart) / xStep);
+        const passHeight = Math.ceil((height - yStart) / yStep);
+
+        if (passWidth > 0 && passHeight > 0) {
+            // Each scanline starts with a filter-type byte.
+            length += passHeight * (1 + Math.ceil(passWidth * bitsPerPixel / 8));
+        }
+    }
+
+    return length;
 }
 
 function rebuildPng(parsed: ParsedPng, recompressedImageData: Buffer): Buffer {

@@ -3,36 +3,46 @@ import { I18nManager } from './i18n/I18nManager';
 import { buildMarkdownImageSnippet, UniqueFileNameError } from './pathing';
 import {
     ensurePastedPngDirectory,
+    LOCAL_MARKDOWN_DOCUMENT,
     preparePastedPngAsset
 } from './pastedPngAsset';
 
 const PNG_MIME_TYPE = 'image/png';
+const PLAIN_TEXT_MIME_TYPE = 'text/plain';
+
+// Untitled Markdown is included only to tell the user to save the file first;
+// every other scheme is left to VS Code's own paste providers.
+export const OTAK_PASTE_PROVIDER_SELECTOR: vscode.DocumentSelector = [
+    LOCAL_MARKDOWN_DOCUMENT,
+    { language: 'markdown', scheme: 'untitled' }
+];
 
 export function getOtakPasteEditKind(): vscode.DocumentDropOrPasteEditKind {
     return vscode.DocumentDropOrPasteEditKind.Empty.append('markdown', 'image', 'otakPaste');
 }
 
-export class OtakPasteImageEdit extends vscode.DocumentPasteEdit {
-    public constructor(
-        public readonly documentUri: vscode.Uri,
-        public readonly pngBytes: Uint8Array,
-        title: string
-    ) {
-        super(new vscode.SnippetString(''), title, getOtakPasteEditKind());
-    }
-}
-
-export class OtakPasteProvider implements vscode.DocumentPasteEditProvider<OtakPasteImageEdit> {
+// The edit is built completely here: Paste As applies the picked edit without
+// calling resolveDocumentPasteEdit, so a resolve-time snippet would never be inserted.
+export class OtakPasteProvider implements vscode.DocumentPasteEditProvider {
     public constructor(private readonly i18n: I18nManager) {}
 
     public async provideDocumentPasteEdits(
         document: vscode.TextDocument,
         _ranges: readonly vscode.Range[],
         dataTransfer: vscode.DataTransfer,
-        _context: vscode.DocumentPasteEditContext,
+        context: vscode.DocumentPasteEditContext,
         token: vscode.CancellationToken
-    ): Promise<OtakPasteImageEdit[]> {
+    ): Promise<vscode.DocumentPasteEdit[]> {
         if (token.isCancellationRequested) {
+            return [];
+        }
+
+        // An image that arrives with text (e.g. Excel cells) yields to the text, as
+        // VS Code's own Markdown image paste does. The pasteAs preference in
+        // configurationDefaults would override a yieldTo, so the edit is offered
+        // only when the user explicitly asks for it via Paste As.
+        if (context.triggerKind === vscode.DocumentPasteTriggerKind.Automatic
+            && await hasPlainText(dataTransfer)) {
             return [];
         }
 
@@ -41,67 +51,52 @@ export class OtakPasteProvider implements vscode.DocumentPasteEditProvider<OtakP
             return [];
         }
 
-        if (document.uri.scheme !== 'file') {
-            void vscode.window.showWarningMessage(this.i18n.t('warning.nonFileMarkdown'));
-            return [];
-        }
-
         const item = dataTransfer.get(PNG_MIME_TYPE);
         if (!item) {
             return [];
         }
 
+        let pngBytes: Uint8Array | undefined;
         try {
-            const pngBytes = await readPngBytes(item);
-            if (token.isCancellationRequested || !pngBytes) {
-                return [];
-            }
-
-            return [
-                new OtakPasteImageEdit(
-                    document.uri,
-                    pngBytes,
-                    this.i18n.t('paste.title')
-                )
-            ];
+            pngBytes = await readPngBytes(item);
         } catch {
             void vscode.window.showErrorMessage(this.i18n.t('error.readPngData'));
             return [];
         }
-    }
 
-    public async resolveDocumentPasteEdit(
-        pasteEdit: OtakPasteImageEdit,
-        token: vscode.CancellationToken
-    ): Promise<OtakPasteImageEdit> {
-        if (token.isCancellationRequested) {
-            return pasteEdit;
+        if (token.isCancellationRequested || !pngBytes) {
+            return [];
         }
 
         try {
-            const asset = await preparePastedPngAsset(pasteEdit.documentUri, pasteEdit.pngBytes);
-
+            const asset = await preparePastedPngAsset(document.uri, pngBytes);
             if (token.isCancellationRequested) {
-                return pasteEdit;
+                return [];
             }
 
             await ensurePastedPngDirectory(asset);
 
-            const additionalEdit = new vscode.WorkspaceEdit();
-            additionalEdit.createFile(asset.imageUri, { contents: asset.pngBytes });
-
-            pasteEdit.insertText = new vscode.SnippetString(buildMarkdownImageSnippet(asset.relativePath));
-            pasteEdit.additionalEdit = additionalEdit;
-            return pasteEdit;
+            const pasteEdit = new vscode.DocumentPasteEdit(
+                new vscode.SnippetString(buildMarkdownImageSnippet(asset.relativePath)),
+                this.i18n.t('paste.title'),
+                getOtakPasteEditKind()
+            );
+            pasteEdit.additionalEdit = new vscode.WorkspaceEdit();
+            pasteEdit.additionalEdit.createFile(asset.imageUri, { contents: asset.pngBytes });
+            return [pasteEdit];
         } catch (error) {
             const key = error instanceof UniqueFileNameError
                 ? 'error.nameCollision'
                 : 'error.createPasteEdit';
             void vscode.window.showErrorMessage(this.i18n.t(key));
-            return pasteEdit;
+            return [];
         }
     }
+}
 
+async function hasPlainText(dataTransfer: vscode.DataTransfer): Promise<boolean> {
+    const text = await dataTransfer.get(PLAIN_TEXT_MIME_TYPE)?.asString();
+    return text !== undefined && text.length > 0;
 }
 
 async function readPngBytes(item: vscode.DataTransferItem): Promise<Uint8Array | undefined> {

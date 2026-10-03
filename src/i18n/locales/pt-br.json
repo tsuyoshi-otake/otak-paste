@@ -9,6 +9,5 @@
   "error.readPngData": "Não foi possível ler dados PNG da área de transferência.",
   "extension.description": "Cole imagens Markdown em assets com otimização PNG sem perdas automática para capturas de tela menores.",
   "paste.title": "Colar imagem em assets",
-  "warning.nonFileMarkdown": "otak-paste só pode salvar imagens para arquivos Markdown locais.",
   "warning.unsavedMarkdown": "Salve este arquivo Markdown antes de colar uma imagem."
 }

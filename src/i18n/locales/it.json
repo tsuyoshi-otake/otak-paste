@@ -9,6 +9,5 @@
   "error.readPngData": "Impossibile leggere i dati PNG dagli appunti.",
   "extension.description": "Incolla immagini Markdown in assets con ottimizzazione PNG lossless automatica per screenshot più piccoli.",
   "paste.title": "Incolla immagine in assets",
-  "warning.nonFileMarkdown": "otak-paste può salvare immagini solo per file Markdown locali.",
   "warning.unsavedMarkdown": "Salva questo file Markdown prima di incollare un'immagine."
 }

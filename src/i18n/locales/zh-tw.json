@@ -9,6 +9,5 @@
   "error.readPngData": "無法從剪貼簿讀取 PNG 資料。",
   "extension.description": "將貼到 Markdown 的圖片自動進行無損 PNG 最佳化，並以更小的截圖儲存到 assets。",
   "paste.title": "將圖片貼到 assets",
-  "warning.nonFileMarkdown": "otak-paste 只能為本機 Markdown 檔案儲存圖片。",
   "warning.unsavedMarkdown": "貼上圖片前，請先儲存此 Markdown 檔案。"
 }

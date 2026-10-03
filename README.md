@@ -43,11 +43,11 @@ The `image` alt text is **pre-selected**, so you can type a real description rig
 
 ## Capabilities
 
-- **One-keystroke flow**: `Ctrl+V` / `Cmd+V` in a Markdown editor runs otak-paste first for clipboard PNGs, then falls back to VS Code's normal paste for text and other clipboard content.
+- **One-keystroke flow**: `Ctrl+V` / `Cmd+V` in a saved Markdown file runs otak-paste for clipboard PNGs; text clipboards go straight to VS Code's normal paste without probing for an image first.
 - **Local-first assets**: images are written to an `assets/` folder beside the current file, never scattered across the workspace.
 - **Smaller Markdown repositories**: pasted screenshots are losslessly recompressed before saving, which can reduce asset size and future Git diffs without changing the visible image.
 - **Unique filenames**: each file receives a random 16-character hex name such as `4f8c9a01d2b3e4f5.png`.
-- **Configurable optimization**: keep the default `lossless` mode, or choose `none` when you need byte-for-byte clipboard output.
+- **Configurable optimization**: keep the default `lossless` mode, or choose `none` to save the clipboard's PNG data without recompressing it.
 - **Undo-friendly cleanup**: undoing the paste removes both the Markdown image link and the PNG file created for that paste.
 - **Editable alt text**: the alt text is selected on paste, ready to describe.
 - **Non-intrusive**: no success pop-ups; it stays out of your workflow.
@@ -81,15 +81,19 @@ PNG optimization is enabled by default because documentation screenshots often c
 
 | Setting | Default | Values |
 | --- | --- | --- |
-| `otakPaste.pngOptimization` | `lossless` | `lossless` recompresses PNG data and removes non-visual metadata while preserving pixels; `none` saves the bytes exactly as received from VS Code |
+| `otakPaste.pngOptimization` | `lossless` | `lossless` recompresses PNG data and removes non-visual metadata while preserving pixels; `none` skips optimization: PNG data that the source app put on the clipboard is saved byte-for-byte, transparency included; on Windows, an image copied only as a bitmap is encoded to PNG first and loses its transparency |
 
 ## Supported Scenarios
 
 | otak-paste handles | Handed back to VS Code's default |
 | --- | --- |
 | A **saved, local** `.md` file is active | Untitled, virtual, or remote-only documents |
-| The clipboard holds **PNG image data** | Non-PNG data such as JPEG, GIF, or WebP |
-| Direct paste into a Markdown editor | Copied image **files** rather than image data |
+| The clipboard holds **PNG image data** | Clipboard **text**, and non-PNG data such as JPEG, GIF, or WebP |
+| Direct paste into a Markdown editor | Notebook Markdown cells |
+| | Copied image **files** rather than image data |
+| | A clipboard holding **both text and an image** (for example Excel cells): the text is pasted |
+
+To paste the image from a clipboard that also holds text, run **Paste As...** (`editor.action.pasteAs`) and pick **Paste image to assets**.
 
 > Only local `file:` Markdown documents are supported in v1.
 
@@ -132,7 +136,7 @@ ext install odangoo.otak-paste
 ```bash
 npm install
 npm run package
-code --install-extension otak-paste-0.3.0.vsix
+code --install-extension otak-paste-0.3.1.vsix
 ```
 
 Reload VS Code afterwards if the Markdown editor was already open.

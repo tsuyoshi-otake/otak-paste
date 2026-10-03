@@ -2,7 +2,11 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { I18nManager } from './i18n/I18nManager';
 import { pasteImageFromClipboard } from './pasteImageCommand';
-import { getOtakPasteEditKind, OtakPasteProvider } from './pasteImageProvider';
+import {
+    getOtakPasteEditKind,
+    OTAK_PASTE_PROVIDER_SELECTOR,
+    OtakPasteProvider
+} from './pasteImageProvider';
 
 export function activate(context: vscode.ExtensionContext): void {
     const localesDir = context.asAbsolutePath(path.join('out', 'i18n', 'locales'));
@@ -13,7 +17,7 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('otakPaste.pasteImage', () => pasteImageFromClipboard(i18n)),
         vscode.languages.registerDocumentPasteEditProvider(
-            { language: 'markdown' },
+            OTAK_PASTE_PROVIDER_SELECTOR,
             provider,
             {
                 providedPasteEditKinds: [getOtakPasteEditKind()],
